@@ -1,0 +1,43 @@
+{
+  "name": "nl.klaasmaakt.cordova.plugin.notifications_permission",
+  "version": "0.0.1",
+  "description": "Plugin that askes permission for notifications on Android.",
+  "cordova": {
+    "id": "cordova-plugin-notification-permission",
+    "platforms": [
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KlaasVanDerLinden/cordova-plugin-notification-permission.git"
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova",
+    "permissions",
+    "notification",
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=9.0.0"
+    },
+    {
+      "name": "cordova-android",
+      "version": ">=8.0.0"
+    },
+    {
+      "name": "cordova-ios",
+      "version": ">=5.0.0"
+    }
+  ],
+  "author": "Klaas van der Linden",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/KlaasVanDerLinden/cordova-plugin-notifications-permission/issues"
+  },
+  "homepage": "https://github.com/KlaasVanDerLinden/cordova-plugin-notifications-permission#readme"
+}

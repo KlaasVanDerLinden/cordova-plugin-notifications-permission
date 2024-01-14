@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        id="cordova-plugin-notifications-permission" version="0.0.1">
+    <name>Notification Permission</name>
+    <description>Plugin that askes permission for notifications on Android.</description>
+    <author>Klaas van der Linden</author>
+    <license>Apache 2.0</license>
+    <keywords>ecosystem:cordova,cordova,permissions,notification</keywords>
+    <engines>
+        <engine name="cordova" version=">=9.0.0"/>
+        <engine name="cordova-android" version=">=8.0.0"/>
+        <engine name="cordova-ios" version=">=5.0.0"/>
+    </engines>
+    <js-module src="www/notification-permission.js" name="notification-permission">
+        <clobbers target="cordova.plugin.notification_permission" />
+    </js-module>
+    <platform name="android">
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+        </config-file>
+        <source-file
+            src="src/android/Notification_Permission.java"
+            target-dir="src/nl/klaasmaakt/cordova/plugin/notifications-permission" />
+    </platform>
+</plugin>
