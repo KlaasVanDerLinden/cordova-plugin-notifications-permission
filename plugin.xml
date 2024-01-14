@@ -12,7 +12,7 @@
         <engine name="cordova-ios" version=">=5.0.0"/>
     </engines>
     <js-module src="www/notification-permission.js" name="notification-permission">
-        <clobbers target="cordova.plugin.notification_permission" />
+        <clobbers target="cordova.notifications_permission" />
     </js-module>
     <platform name="android">
         <config-file target="AndroidManifest.xml" parent="/manifest">
