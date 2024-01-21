@@ -22,7 +22,6 @@
     	<config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
         </config-file>
-        <hook src="hooks/android/before_prepare/fix-permission.js" type="before_prepare" />
         <config-file target="res/xml/config.xml" parent="/*">
 	        <feature name="NotificationsPermission">
 		        <param name="android-package" value="nl.klaasmaakt.cordova.notifications_permission.NotificationsPermission" />

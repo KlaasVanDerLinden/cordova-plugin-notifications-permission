@@ -132,11 +132,12 @@ Theme_Material_Light_Dialog_Presentation: 16974398
 ### Full Example
 
 ```javascript
+let permissionPlugin = cordova.notifications_permission;
 let message = "You really need to give permission!";
 let ok = "OK";
 let cancel = "Not now";
-let style = this.permission.styles.Theme_DeviceDefault_Dialog_Alert;
-this.permission.maybeAskPermission((status) => {
+let style = permissionPlugin.styles.Theme_DeviceDefault_Dialog_Alert;
+permissionPlugin.maybeAskPermission((status) => {
 		/* Logs either "granted" or "denied" */
 		console.log(status);  
 	},
