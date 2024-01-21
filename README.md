@@ -58,16 +58,19 @@ var permission = cordova.notifications_permission;
 permission.maybeAskPermission(onSuccess, rationaleText, rationaleOkButton, rationaleCancelButton);
 ```
 
-Asks for permission if not done already or declined.
+Asks for permission if not done already or declined. Permission is asked through the official - and only - Android dialog. If permission is not granted by the user, a second time the app starts a "rationale" dialog is displayed explaining why permission needs to be given. You can customize the text, buttons, and theme of this dialog.
+
+
 Call it like this:
 
 ```javascript
 permission.maybeAskPermission(
+	/* Callback that receives whether the use does or doesn not allow notifications. */
 	function(status){
 		/**
 		 * status can be one of the following:
-		 * - window.cordova.notifications_permission.GRANTED 
-		 * - window.cordova.notifications_permission.DENIED
+		 * - window.cordova.notifications_permission.GRANTED ("Allow" has been clicked)
+		 * - window.cordova.notifications_permission.DENIED ("Don't Allow" or the "Maybe later..." button is clicked)
 		 */
 		 if(status === window.cordova.notifications_permission.GRANTED){
 		 	/* you can show notifications! */
@@ -79,9 +82,9 @@ permission.maybeAskPermission(
 	/* text on the rationale notification dialog */
 	"You need to give permission because it is important!", 
 	/* text on the rationale OK button */
-	"Fine!",
+	"OK",
 	/* text on the rationale Cancel button */
-	"Not fine!",
+	"Maybe later...",
 	/* theme to use for the rationale dialog, see below */
 	style
 	);
