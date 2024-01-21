@@ -89,7 +89,7 @@ permission.maybeAskPermission(
 
 ### Styles
 
-The following Android themes can be used to style your rationale dialog. Use them like this: `cordova.notifications_permission.Theme_DeviceDefault_Dialog` (or as the value `16974126`), passing it as `theme` argument to the `maybeAskPermission` method.
+The following Android themes can be used to style your rationale dialog. Use them like this: `cordova.notifications_permission.styles.Theme_DeviceDefault_Dialog` (or as the value `16974126`), passing it as `theme` argument to the `maybeAskPermission` method.
 
 
 ```javascript
