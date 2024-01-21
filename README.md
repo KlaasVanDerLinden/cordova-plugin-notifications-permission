@@ -25,7 +25,7 @@ description: Asks the user for permission to display your app's notifications on
 
 
 
-This plugin provides the ability to have the Android user choose whether to display notifications of your app.
+This plugin provides the ability to have the Android user choose whether to display notifications of your app. The user has to give a runtime permission (AKA a dangerous permission) for this.
 
 
 
@@ -55,13 +55,42 @@ var permission = cordova.notifications_permission;
 
 
 ```javascript
-var my_media = new Media('cdvfile://localhost/temporary/recording.mp3', ...);
+permission.maybeAskPermission(onSuccess, rationaleText, rationaleOkButton, rationaleCancelButton);
 ```
 
-### Constants
+Asks for permission if not done already or declined.
+Call it like this:
 
-The following constants are reported as the only parameter to the
-`mediaStatus` callback:
+```javascript
+permission.maybeAskPermission(
+	function(status){
+		/**
+		 * status can be one of the following:
+		 * - window.cordova.notifications_permission.GRANTED 
+		 * - window.cordova.notifications_permission.DENIED
+		 */
+		 if(status === window.cordova.notifications_permission.GRANTED){
+		 	/* you can show notifications! */
+		 }
+		 else if(status === window.cordova.notifications_permission.DENIED){
+		 	/* we cannot do anything */
+		 }
+	},
+	/* text on the rationale notification dialog */
+	"You need to give permission because it is important!", 
+	/* text on the rationale OK button */
+	"Fine!",
+	/* text on the rationale Cancel button */
+	"Not fine!",
+	/* theme to use for the rationale dialog, see below */
+	style
+	);
+```
+
+### Styles
+
+The following Android themes can be used to style your rationale dialog. Use them like this: `cordova.notifications_permission.Animation`.
+
 
 - `Media.MEDIA_NONE`     = 0;
 - `Media.MEDIA_STARTING` = 1;
