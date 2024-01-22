@@ -7,14 +7,14 @@ let NotificationsPermission = {
 	/**
 	 * Show a notification to the user asking for permission to post notifications to the lock screen.
 	 */
-	maybeAskPermission: function(onSuccess, rationaleText, rationaleOkButton, rationaleCancelButton, style){
+	maybeAskPermission: function(onSuccess, rationaleText, rationaleOkButton, rationaleCancelButton, theme){
 		/* Only for Android. */
 		if(cordova.platformId === 'android'){
 			/* Make sure the arguments are all set */
 			rationaleText = (typeof(rationaleText) !== "undefined") ? rationaleText : "";
 			rationaleOkButton =  (typeof(rationaleOkButton) !== "undefined") ? rationaleOkButton : "";
 			rationaleCancelButton =  (typeof(rationaleCancelButton) !== "undefined") ? rationaleCancelButton : "";
-			style = (typeof(style) !== "undefined" && style) ? style : window.cordova.notifications_permission.styles.Theme_DeviceDefault_Dialog_Alert;
+			theme = (typeof(theme) !== "undefined" && theme) ? theme : window.cordova.notifications_permission.themes.Theme_DeviceDefault_Dialog_Alert;
 			/* Call Android. Get 'status':
 			 *	- window.cordova.notifications_permission.GRANTED or 
 			 *  - window.cordova.notifications_permission.DENIED
@@ -29,7 +29,7 @@ let NotificationsPermission = {
 				rationaleText, 
 				rationaleOkButton, 
 				rationaleCancelButton,
-				style
+				theme
 			]);
 		}
 		else{

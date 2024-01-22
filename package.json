@@ -1,7 +1,7 @@
 {
-  "name": "nl.klaasmaakt.cordova.plugin.notifications_permission",
+  "name": "cordova-plugin-notifications-permission",
   "version": "0.0.1",
-  "description": "Plugin that askes permission for showing notifications on Android.",
+  "description": "Plugin that asks permission for showing notifications on Android, including a dialog which explains why the permission is needed.",
   "cordova": {
     "id": "cordova-plugin-notification-permission",
     "platforms": [

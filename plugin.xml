@@ -16,8 +16,8 @@
         <clobbers target="window.cordova.notifications_permission" />
     </js-module>
     <platform name="android">
-	    <js-module src="www/Styles.js" name="Styles">
-	        <clobbers target="window.cordova.notifications_permission.styles" />
+	    <js-module src="www/Themes.js" name="Themes">
+	        <clobbers target="window.cordova.notifications_permission.themes" />
 	    </js-module>
     	<config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />

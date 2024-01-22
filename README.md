@@ -25,11 +25,13 @@ description: Asks the user for permission to display your app's notifications on
 
 
 
-This plugin provides the ability to have the Android user choose whether to display notifications of your app. The user has to give a runtime permission (AKA a dangerous permission) for this.
+This plugin provides the ability to have the Android user choose whether to display notifications of your app. The user has to give a runtime permission (AKA a dangerous permission) for this. This plugin adds a dialog that shows an explanation why the permission is needed.
 
 
 
-This plugin defines the global `window.cordova.notifications_permission`.
+This plugin defines the global `window.cordova.notifications_permission` and its method `maybeAskPermission` that does all the heavy lifting to get the permission handled.
+
+1. 
 
 
 
@@ -42,8 +44,7 @@ cordova plugin add cordova-plugin-notifications-permission
 ## Supported Platforms
 
 - Android
-- iOS - added for convenience sake
-- Browser - added for convenience sake
+- All other platforms are not affected.
 
 ## The global
 
@@ -58,7 +59,7 @@ var permission = cordova.notifications_permission;
 permission.maybeAskPermission(onSuccess, rationaleText, rationaleOkButton, rationaleCancelButton);
 ```
 
-Asks for permission if not done already or declined. Permission is asked through the official - and only - Android dialog. If permission is not granted by the user, a second time the app starts a "rationale" dialog is displayed explaining why permission needs to be given. You can customize the text, buttons, and theme of this dialog.
+Asks for permission if not done already or declined. Permission is asked through the official - and only - Android system dialog. If permission is not granted by the user, a second time the app starts a "rationale" dialog is displayed explaining why permission needs to be given. You can customize the text, buttons, and theme of this dialog.
 
 
 Call it like this:
@@ -85,14 +86,14 @@ permission.maybeAskPermission(
 	"OK",
 	/* text on the rationale Cancel button */
 	"Maybe later...",
-	/* theme to use for the rationale dialog, see below */
-	style
+	/* theme to use to style the rationale dialog, see below */
+	theme
 	);
 ```
 
-### Styles
+### Themes
 
-The following Android themes can be used to style your rationale dialog. Use them like this: `cordova.notifications_permission.styles.Theme_DeviceDefault_Dialog` (or as the value `16974126`), passing it as `theme` argument to the `maybeAskPermission` method.
+The following native Android themes can be used to style your rationale dialog. Use them like this: `cordova.notifications_permission.themes.Theme_DeviceDefault_Dialog` (or as the value `16974126`), passing it as `theme` argument to the `maybeAskPermission` method.
 
 
 ```javascript
@@ -139,7 +140,7 @@ let permissionPlugin = cordova.notifications_permission;
 let message = "You really need to give permission!";
 let ok = "OK";
 let cancel = "Not now";
-let style = permissionPlugin.styles.Theme_DeviceDefault_Dialog_Alert;
+let theme = permissionPlugin.themes.Theme_DeviceDefault_Dialog_Alert;
 permissionPlugin.maybeAskPermission((status) => {
 		/* Logs either "granted" or "denied" */
 		console.log(status);  
@@ -147,6 +148,6 @@ permissionPlugin.maybeAskPermission((status) => {
 	message,
 	ok,
 	cancel,
-	style
+	theme
 );
 ```
