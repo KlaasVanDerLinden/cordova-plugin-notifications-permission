@@ -100,9 +100,11 @@ permissionPlugin.maybeAskPermission({
 		callback: function(status){
 			/**
 			 * status can be one of the following:
-			 * - permissionPlugin.GRANTED ("Allow" has been clicked)
-			 * - permissionPlugin.DENIED ("Don't Allow" or the rationale dialog's Cancel button is clicked)
-			 * - permissionPlugin.NOT_NEEDED (Device OS is before Android 13 (API Level 33) or OS is not Android.)
+			 * - permissionPlugin.GRANTED ("Allow" has been clicked on the System Dialog)
+			 * - permissionPlugin.DENIED_BY_SYSTEM_DIALOG ("Don't Allow" was clicked)
+			 * - permissionPlugin.DENIED_BY_RATIONALE_DIALOG (Clicked on the rationale dialog's Cancel button.)
+			 * - permissionPlugin.NOT_NEEDED (On device before Android 13 (API Level 33).)
+			 * - permissionPlugin.NOT_ANDROID (Not on an Android device.)
 			 */
 		}, 
 		rationaleDialog: {
@@ -162,7 +164,7 @@ Theme_Material_Light_Dialog_Presentation: 16974398
 
 ### Full Example
 
-You only need to add this code and you are set. If you want to you can do something with the status that is being returned. Since a Foreground service also works even if it's notification is not allowed (at least in my experience), just calling `maybeAskPermission` is enough. If the user grants permission he/she will see the notification, else he/she will have to live without it.
+You only need to add this bit of code and you are set. If you want to you can do something with the status that is being returned. Since a Foreground service also works even if it's notification is not allowed (at least in my experience), just calling `maybeAskPermission` is enough. If the user grants permission he/she will see the notification, else he/she will have to live without it.
 
 ```javascript
 let permissionPlugin = window.cordova.notifications_permission;
@@ -176,9 +178,10 @@ permissionPlugin.maybeAskPermission({
 		switch(status){
 			case permissionPlugin.GRANTED:
 			case permissionPlugin.NOT_NEEDED:
-				/* Notification now shows the same as it did before Android 13 (API Level 33). */
+				/* Notification shows the same as it did before Android 13 (API Level 33). */
 				break;
-			case permissionPlugin.DENIED:
+			case permissionPlugin.DENIED_BY_RATIONALE_DIALOG:
+			case permissionPlugin.DENIED_BY_SYSTEM_DIALOG:
 			case permissionPlugin.NOT_ANDROID:
 				/* The notification does not show. */
 				break;	

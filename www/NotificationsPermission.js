@@ -1,9 +1,10 @@
 let exec = require('cordova/exec');
 let cordova = require('cordova');	
 let NotificationsPermission = {
-
-	DENIED: "denied",
+	/* Constants for the returned status of the permission. */
 	GRANTED: "granted",
+	DENIED_BY_SYSTEM_DIALOG: "denied_by_system_dialog",
+	DENIED_BY_RATIONALE_DIALOG: "denied_by_rationale_dialog",
 	NOT_NEEDED: "not_needed",
 	NOT_ANDROID: "not_android",
 	/**
@@ -23,8 +24,10 @@ let NotificationsPermission = {
 			let theme = (typeof(rationale.theme) !== "undefined" && parseInt(rationale.theme)) ? parseInt(rationale.theme) : window.cordova.notifications_permission.themes.Theme_DeviceDefault_Dialog_Alert;
 			/* Call Android. Get 'status':
 			 *	- window.cordova.notifications_permission.GRANTED or 
-			 *  - window.cordova.notifications_permission.DENIED or
-			 *  - window.cordova.notifications_permission.NOT_NEEDED( < Android 13 (API Level 33))
+			 *  - window.cordova.notifications_permission.DENIED_BY_SYSTEM_DIALOG or
+			 * 	- window.cordova.notifications_permission.DENIED_BY_RATIONALE_DIALOG or
+			 *  - window.cordova.notifications_permission.NOT_NEEDED( < Android 13 (API Level 33)) or
+			 *  - window.cordova.notifications_permission.NOT_ANDROID
 			 * Else error callback is called. Developers should console.log the error to see what happens.
 			 */
 			exec(function(status){

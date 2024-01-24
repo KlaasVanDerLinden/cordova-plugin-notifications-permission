@@ -41,7 +41,8 @@ public class NotificationsPermission extends CordovaPlugin {
 	private static final String TAG = "NotificationsPermission";
 	// Constants for permission status
 	public static final String GRANTED = "granted";
-	public static final String DENIED = "denied";
+	public static final String DENIED_BY_SYSTEM_DIALOG = "denied_by_system_dialog";
+	public static final String DENIED_BY_RATIONALE_DIALOG = "denied_by_rationale_dialog";
 	public static final String NOT_NEEDED = "not_needed";
 	// Request code for permission request
 	private static final int REQUEST_CODE = 1;
@@ -60,7 +61,7 @@ public class NotificationsPermission extends CordovaPlugin {
 			}
 			if (status == ClickCallback.Status.NEGATIVE) {
 				PluginResult.Status resultStatus = PluginResult.Status.OK;
-				mCallbackContext.sendPluginResult(new PluginResult(resultStatus, mInstance.DENIED));
+				mCallbackContext.sendPluginResult(new PluginResult(resultStatus, mInstance.DENIED_BY_RATIONALE_DIALOG));
 			}
 		}
 	};
@@ -91,7 +92,7 @@ public class NotificationsPermission extends CordovaPlugin {
 				result = GRANTED;
 			}
 			else if(grantResults[0] == PackageManager.PERMISSION_DENIED){
-				result = DENIED;
+				result = DENIED_BY_SYSTEM_DIALOG;
 			}
 			Log.v(TAG, result);
 			PluginResult.Status status = PluginResult.Status.OK;
