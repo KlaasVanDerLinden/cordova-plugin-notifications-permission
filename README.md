@@ -25,7 +25,11 @@ description: Asks the user for permission to display your app's notifications on
 
 
 
-This plugin provides the ability to have the Android user choose whether to display a non-exempt (including Foreground Services) notification of your app.  The user has to give a runtime permission (AKA a dangerous permission) for this. This is for Android 13 (API level 33) and higher. See [the Android developer docs](https://developer.android.com/develop/ui/views/notifications/notification-permission) for an explanation.
+This plugin provides the ability to have the Android user choose whether to display a notification on the lock screen from your app.  The user has to give a runtime permission (AKA a dangerous permission) for this since Android 13 (API level 33) and higher. See [the Android developer docs](https://developer.android.com/develop/ui/views/notifications/notification-permission) for an explanation.
+
+Before Android 13 (API Level 33) apps running a Foreground service did not have to have runtime permission from the user. The FOREGROUND_SERVICE permission implied the use of a notification. But that has changed. Apps running on Android 13 (API Level 33) do need two things:
+- These apps are required to have a notification (passed to the foreground service), so the user can see that the app is doing something in the foreground, while the app itself is in the background.
+- To show the necessary notification, since Android 13 (API Level 33), an app using a foreground service notification has to ask runtime permission.
 
 This plugin adds a system dialog ("Allow", "Deny") and a "rationale" dialog in case the user doesn't allow notifications in order to explain why the permission is needed.
 
@@ -64,6 +68,8 @@ This plugin defines the global `window.cordova.notifications_permission` and its
 </ul>
 
 
+
+
 ## Installation
 
 ```bash
@@ -72,8 +78,7 @@ cordova plugin add cordova-plugin-notifications-permission
 
 ## Supported Platforms
 
-- Android
-- All other platforms are not affected.
+- All platforms are supported, but it only does something on Android.
 
 ## The global
 
@@ -172,8 +177,16 @@ let ok = "OK";
 let cancel = "Not now";
 let theme = permissionPlugin.themes.Theme_DeviceDefault_Dialog_Alert;
 permissionPlugin.maybeAskPermission((status) => {
-		/* Logs either "granted" or "denied" */
-		console.log(status);  
+		/* Permission is either granted, denied, or not needed for pre Android 13. */
+		switch(status){
+			case permissionPlugin.GRANTED:
+			case permissionPlugin.NOT_NEEDED:
+				/* Notification shows just like before Android 13 */
+				break;
+			case permissionPlugin.DENIED:
+				/* The notification does not show. */
+				break;	
+		}
 	},
 	message,
 	ok,
