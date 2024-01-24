@@ -127,13 +127,13 @@ public class NotificationsPermission extends CordovaPlugin {
 					callbackContext.sendPluginResult(new PluginResult(status, result));
 				} else {
 					// Set text for extra dialog and its buttons
-					String rationaleText = args.getString(0);
+					String rationaleMsg = args.getString(0);
 					String positiveButton = args.getString(1);
 					String negativeButton = args.getString(2);
 					int theme = Integer.parseInt(args.getString(3));
 					if (shouldShowRationale(perms)) {
 						showRequestPermissionRationale(
-								rationaleText, positiveButton, negativeButton, theme, REQUEST_CODE, perms);
+								rationaleMsg, positiveButton, negativeButton, theme, REQUEST_CODE, perms);
 					} else {
 						cordova.requestPermission(mInstance, REQUEST_CODE, Manifest.permission.POST_NOTIFICATIONS);
 					}
