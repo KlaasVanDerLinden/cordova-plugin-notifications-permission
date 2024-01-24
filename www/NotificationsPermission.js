@@ -4,6 +4,7 @@ let NotificationsPermission = {
 
 	DENIED: "denied",
 	GRANTED: "granted",
+	NOT_NEEDED: "not_needed"
 	/**
 	 * Show a notification to the user asking for permission to post notifications to the lock screen.
 	 */

@@ -17,13 +17,10 @@
    under the License.
 */
 package nl.klaasmaakt.cordova.notifications_permission;
-
 import android.Manifest;
-import android.app.FragmentManager;
-import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,38 +28,29 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentTransaction;
-
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaActivity;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
-
 /**
  * CordovaPlugin for handling notification permissions.
  */
 public class NotificationsPermission extends CordovaPlugin {
-
 	// Tag for logging purposes
 	private static final String TAG = "NotificationsPermission";
-
 	// Constants for permission status
 	public static final String GRANTED = "granted";
 	public static final String DENIED = "denied";
-
+	public static final String NOT_NEEDED = "not_needed";
 	// Request code for permission request
 	private static final int REQUEST_CODE = 1;
-
 	// Dialog ID for managing multiple dialogs
 	private static final String DIALOG_ID = "dialog";
-
 	// Callback context for communicating with Cordova
 	private CallbackContext mCallbackContext;
-
 	// Instance of NotificationsPermission for referencing in callbacks
 	private NotificationsPermission mInstance;
-
 	// ClickCallback for handling positive and negative button clicks
 	private ClickCallback mClickCallback = new ClickCallback() {
 		@Override
@@ -87,7 +75,7 @@ public class NotificationsPermission extends CordovaPlugin {
 	}
 
 	/**
-	 * Handle the result of a permission request.
+	 * Handle the result of a permission request. Cordova has marked thsis as deprecated but hasn't implemented the alternative onRequestPermissionsResult()...
 	 *
 	 * @param requestCode  The request code associated with the permission request.
 	 * @param permissions  The array of requested permissions.
@@ -96,10 +84,15 @@ public class NotificationsPermission extends CordovaPlugin {
 	 */
 	@Override
 	public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
-
+		super.onRequestPermissionResult(requestCode,permissions,grantResults);
 		if (requestCode == REQUEST_CODE) {
-			boolean permissionAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-			String result = permissionAccepted ? GRANTED : DENIED;
+			String result = "undefined";
+			if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+				result = GRANTED;
+			}
+			else if(grantResults[0] == PackageManager.PERMISSION_DENIED){
+				result = DENIED;
+			}
 			Log.v(TAG, result);
 			PluginResult.Status status = PluginResult.Status.OK;
 			mCallbackContext.sendPluginResult(new PluginResult(status, result));
@@ -112,14 +105,19 @@ public class NotificationsPermission extends CordovaPlugin {
 	 * @param action          The action to execute.
 	 * @param args            JSONArray of arguments for the plugin.
 	 * @param callbackContext The callback context used when calling back into JavaScript.
-	 * @return Whether the action was valid.
+	 * @return boolean Whether the action was valid.
 	 */
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+		mCallbackContext = callbackContext;
+		if(Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU){
+			PluginResult.Status status = PluginResult.Status.OK;
+			mCallbackContext.sendPluginResult(new PluginResult(status, NOT_NEEDED));
+ 			return true;
+		}
 		cordova.getThreadPool().execute(() -> {
 			try {
 				AppCompatActivity activity = cordova.getActivity();
-				mCallbackContext = callbackContext;
 				String result;
 				String[] perms = {Manifest.permission.POST_NOTIFICATIONS};
 				if (cordova.hasPermission(Manifest.permission.POST_NOTIFICATIONS)) {
@@ -133,7 +131,6 @@ public class NotificationsPermission extends CordovaPlugin {
 					String positiveButton = args.getString(1);
 					String negativeButton = args.getString(2);
 					int theme = Integer.parseInt(args.getString(3));
-
 					if (shouldShowRationale(perms)) {
 						showRequestPermissionRationale(
 								rationaleText, positiveButton, negativeButton, theme, REQUEST_CODE, perms);

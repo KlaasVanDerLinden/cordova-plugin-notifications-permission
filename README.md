@@ -25,14 +25,43 @@ description: Asks the user for permission to display your app's notifications on
 
 
 
-This plugin provides the ability to have the Android user choose whether to display notifications of your app. The user has to give a runtime permission (AKA a dangerous permission) for this. This plugin adds a dialog that shows an explanation why the permission is needed.
+This plugin provides the ability to have the Android user choose whether to display a non-exempt (including Foreground Services) notification of your app.  The user has to give a runtime permission (AKA a dangerous permission) for this. This is for Android 13 (API level 33) and higher. See [the Android developer docs](https://developer.android.com/develop/ui/views/notifications/notification-permission) for an explanation.
 
-
+This plugin adds a system dialog ("Allow", "Deny") and a "rationale" dialog in case the user doesn't allow notifications in order to explain why the permission is needed.
 
 This plugin defines the global `window.cordova.notifications_permission` and its method `maybeAskPermission` that does all the heavy lifting to get the permission handled.
 
-1. 
+<ul>
 
+- 1. First call to `maybeAskPermission`: Shows System dialog. User chooses:
+
+<ul>
+		
+- "Allow": You are allowed to show notifications. No further dialog for the user.
+	
+- "Don't Allow": continue to 2.
+
+</ul>
+	
+- 2. Second call (and any further calls) to `maybeAskPermission`: Shows Rationale dialog explaining why permission is needed. User chooses:
+
+<ul>
+
+- "OK": System dialog is shown again - a the last time. User chooses:
+
+<ul>
+
+- "Allow": You are allowed to show notifications. No further dialog for the user.
+
+- "Don't Allow": You are not allowed to show notifications. No further dialog for the user.
+
+</ul>
+
+- "Not now": continue to 2.
+
+</ul>
+	
+</ul>
 
 
 ## Installation
@@ -49,14 +78,14 @@ cordova plugin add cordova-plugin-notifications-permission
 ## The global
 
 ```js
-var permission = cordova.notifications_permission;
+var permissionPlugin = window.cordova.notifications_permission;
 ```
 
 ### Methods
 
 
 ```javascript
-permission.maybeAskPermission(onSuccess, rationaleText, rationaleOkButton, rationaleCancelButton);
+permissionPlugin.maybeAskPermission(onSuccess, rationaleText, rationaleOkButton, rationaleCancelButton);
 ```
 
 Asks for permission if not done already or declined. Permission is asked through the official - and only - Android system dialog. If permission is not granted by the user, a second time the app starts a "rationale" dialog is displayed explaining why permission needs to be given. You can customize the text, buttons, and theme of this dialog.
@@ -72,6 +101,7 @@ permission.maybeAskPermission(
 		 * status can be one of the following:
 		 * - window.cordova.notifications_permission.GRANTED ("Allow" has been clicked)
 		 * - window.cordova.notifications_permission.DENIED ("Don't Allow" or the "Maybe later..." button is clicked)
+		 * - window.cordova.notifications_permission.NOT_NEEDED (Before Android 13 (API Level 33) this permission worked differently.)
 		 */
 		 if(status === window.cordova.notifications_permission.GRANTED){
 		 	/* you can show notifications! */
@@ -136,7 +166,7 @@ Theme_Material_Light_Dialog_Presentation: 16974398
 ### Full Example
 
 ```javascript
-let permissionPlugin = cordova.notifications_permission;
+let permissionPlugin = window.cordova.notifications_permission;
 let message = "You really need to give permission!";
 let ok = "OK";
 let cancel = "Not now";
