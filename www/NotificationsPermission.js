@@ -4,7 +4,7 @@ let NotificationsPermission = {
 
 	DENIED: "denied",
 	GRANTED: "granted",
-	NOT_NEEDED: "not_needed"
+	NOT_NEEDED: "not_needed",
 	/**
 	 * Show a notification to the user asking for permission to post notifications to the lock screen.
 	 */
@@ -18,7 +18,8 @@ let NotificationsPermission = {
 			theme = (typeof(theme) !== "undefined" && theme) ? theme : window.cordova.notifications_permission.themes.Theme_DeviceDefault_Dialog_Alert;
 			/* Call Android. Get 'status':
 			 *	- window.cordova.notifications_permission.GRANTED or 
-			 *  - window.cordova.notifications_permission.DENIED
+			 *  - window.cordova.notifications_permission.DENIED or
+			 *  - window.cordova.notifications_permission.NOT_NEEDED( < Android 13 (API Level 33))
 			 * Else error callback is called. Developers should console.log the error to see what happens.
 			 */
 			exec(function(status){
