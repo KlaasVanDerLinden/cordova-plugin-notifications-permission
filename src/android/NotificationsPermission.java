@@ -18,8 +18,6 @@
 */
 package nl.klaasmaakt.cordova.notifications_permission;
 import android.Manifest;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
@@ -55,10 +53,6 @@ public class NotificationsPermission extends CordovaPlugin {
 	public static final String NOT_NEEDED = "not_needed";
 	// Request code for permission request
 	private static final int REQUEST_CODE = 1;
-	// Key to store in sharedpreference whether the notifcication has needed a rationale before
-	private static final String SHARED_PREFERENCES_KEY = "shared_preferences_key";
-	private static final String SP_RATIONALE_HAS_BEEN_NEEDED_BEFORE_KEY = "Rationale_has_been_needed_before";
-	private static final String SP_WE_HAVE_BEEN_HERE_BEFORE_KEY = "we_have_been_here_before";
 	// Stores the before state of shouldRequestPermissionRationale to differentiate between permanently and temporarily denied.
 	private boolean beforeClickPermissionRat;
 	// Dialog ID for managing multiple dialogs
@@ -67,6 +61,7 @@ public class NotificationsPermission extends CordovaPlugin {
 	private CallbackContext mCallbackContext;
 	// Instance of NotificationsPermission for referencing in callbacks
 	private NotificationsPermission mInstance;
+	private Utils mUtils;
 	// Keeps track of whether the rationale has shown before making new requestPermission
 	private boolean hasPassedRationale = false;
 	// ClickCallback for handling positive and negative button clicks
@@ -94,6 +89,7 @@ public class NotificationsPermission extends CordovaPlugin {
 	public void pluginInitialize() {
 		super.pluginInitialize();
 		mInstance = this;
+		mUtils = new Utils(cordova.getContext());
 	}
 
 	/**
@@ -116,22 +112,26 @@ public class NotificationsPermission extends CordovaPlugin {
 				else {
 					result = NEWLY_GRANTED_WITHOUT_RATIONALE;
 				}
+				mUtils.savePermissionHasBeenGrantedBefore();
 			}
 			else if(grantResults[0] == PackageManager.PERMISSION_DENIED){
 				/* We need to check whether we have been in the process or the user has just started
 				 * if the rationale dialog has been needed before we know this is not the first start
 				 */
-				boolean rationaleHasBeenNeededBefore = getRationaleHasBeenNeededBefore();
-
+				boolean rationaleHasBeenNeededBefore = mUtils.getRationaleHasBeenNeededBefore();
+				/* In the rare case that the user granted permission and then ungranted it via OS settings
+				 * we will keep track of that grant.
+				 */
+				boolean permissionHasBeenGrantedBefore = mUtils.getPermissionHasBeenGrantedBefore();
 				/* Also check whether we arrive her for a second time, so we can set already denied
 				 * properly next time.
 				 */
-				boolean haveWeBeenHereBefore = getHaveWeBeenHereBefore();
-				saveHaveWeBeenHereBefore();
+				boolean haveWeBeenHereBefore = mUtils.getHaveWeBeenHereBefore();
+				mUtils.saveHaveWeBeenHereBefore();
 				boolean afterClickPermissionRat = shouldShowRationale();
 				// if true than we save it so we know this is not the first time
 				if(afterClickPermissionRat == true){
-					saveRationaleHasBeenNeededBefore();
+					mUtils.saveRationaleHasBeenNeededBefore();
 				}
 				/* Since we know te state of shouldShowRationale before and after we requestPermission
 				 * we know that there is still no need to show the rationale so was already denied
@@ -139,10 +139,11 @@ public class NotificationsPermission extends CordovaPlugin {
 				 */
 				if(beforeClickPermissionRat == false && afterClickPermissionRat == false){
 					/* We have had the first dialog a while ago, so this is the end */
-					if(rationaleHasBeenNeededBefore == true){
+					if(rationaleHasBeenNeededBefore == true || permissionHasBeenGrantedBefore == true){
 						result = ALREADY_DENIED_PERMANENTLY;
 					}
 					else if(haveWeBeenHereBefore == true){
+						Log.v(TAG,"blubberdeblubber");
 						result = ALREADY_DENIED_NOT_PERMANENTLY;
 					}
 					else{
@@ -260,27 +261,5 @@ public class NotificationsPermission extends CordovaPlugin {
 				rationaleMsg, positiveButton, negativeButton, mClickCallback, theme, requestCode);
 		newFragment.show(ft, DIALOG_ID);
 	}
-	public void saveRationaleHasBeenNeededBefore(){
-		setSavedPref(SP_RATIONALE_HAS_BEEN_NEEDED_BEFORE_KEY);
-	}
-	public boolean getRationaleHasBeenNeededBefore(){
-		return getSavedPref(SP_RATIONALE_HAS_BEEN_NEEDED_BEFORE_KEY);
-	}
-	public void saveHaveWeBeenHereBefore() {
-		setSavedPref(SP_WE_HAVE_BEEN_HERE_BEFORE_KEY);
-	}
-	public boolean getHaveWeBeenHereBefore(){
-		return getSavedPref(SP_WE_HAVE_BEEN_HERE_BEFORE_KEY);
-	}
-	public void setSavedPref(String pref){
-		Context context = cordova.getContext();
-		SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_KEY,Context.MODE_PRIVATE);
-		sharedPreferences.edit().putString(pref, "true").apply();
-	}
-	public boolean getSavedPref(String pref){
-		Context context = cordova.getContext();
-		SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_KEY,Context.MODE_PRIVATE);
-		String savedPref = sharedPreferences.getString(pref, "false");
-		return savedPref.equals("true") ? true : false;
-	}
+
 }
