@@ -97,30 +97,30 @@ var permissionPlugin = window.cordova.notifications_permission;
 
 ```javascript
 permissionPlugin.maybeAskPermission(
-        /* Callback that returns the status. */
-        function(status){
-            /**
-             * status can be one of the following:
-             * - permissionPlugin.NEWLY_GRANTED_WITHOUT_RATIONALE ("Allow" has been clicked on the System Dialog)
-             * - permissionPlugin.NEWLY_GRANTED_AFTER_RATIONALE ("Allow" has been clicked on the System Dialog after have confirmed the rationale dialog.)
-             * - permissionPlugin.ALREADY_GRANTED (User has already allowed the notification at some point earlier.)
-             * - permissionPlugin.NEWLY_DENIED_NOT_PERMANENTLY  ("Don't allow" clicked or swiped away for the first time. OS will try again in the future.)
-             * - permissionPlugin.NEWLY_DENIED_PERMANENTLY  ("Don't allow" clicked. OS will never ask again.)
-             * - permissionPlugin.ALREADY_DENIED_PERMANENTLY  (OS decided to stop asking at some point earlier.)
-             * - permissionPlugin.ALREADY_DENIED_NOT_PERMANENTLY  (User denied again. But the OS will try again in the future.)
-             * - permissionPlugin.DENIED_THROUGH_RATIONALE_DIALOG (User clicked on the rationale dialog's Cancel button.)
-             * - permissionPlugin.NOT_NEEDED (User is on device before Android 13 (API Level 33).)
-             * - permissionPlugin.NOT_ANDROID (User is not on an Android device.)
-             * - permissionPlugin.ERROR (A message was printed in the console indicating the cause of the error.)
-             */
-        }, 
-        /* rationale dialog settings: an object with the options for texts and theme. */
-        {
-            rationaleMsg, /* message on the rationale notification dialog */
-            rationaleOkButton, /* text on the rationale OK button */
-            rationaleCancelButton, /* text on the rationale Cancel button */
-            theme /* theme to use to style the rationale dialog, see below */
-        }
+    /* Callback that returns the status. */
+    function(status){
+        /**
+         * status can be one of the following:
+         * - permissionPlugin.NEWLY_GRANTED_WITHOUT_RATIONALE ("Allow" has been clicked on the System Dialog)
+         * - permissionPlugin.NEWLY_GRANTED_AFTER_RATIONALE ("Allow" has been clicked on the System Dialog after have confirmed the rationale dialog.)
+         * - permissionPlugin.ALREADY_GRANTED (User has already allowed the notification at some point earlier.)
+         * - permissionPlugin.NEWLY_DENIED_NOT_PERMANENTLY  ("Don't allow" clicked or swiped away for the first time. OS will try again in the future.)
+         * - permissionPlugin.NEWLY_DENIED_PERMANENTLY  ("Don't allow" clicked. OS will never ask again.)
+         * - permissionPlugin.ALREADY_DENIED_PERMANENTLY  (OS decided to stop asking at some point earlier.)
+         * - permissionPlugin.ALREADY_DENIED_NOT_PERMANENTLY  (User denied again. But the OS will try again in the future.)
+         * - permissionPlugin.DENIED_THROUGH_RATIONALE_DIALOG (User clicked on the rationale dialog's Cancel button.)
+         * - permissionPlugin.NOT_NEEDED (User is on device before Android 13 (API Level 33).)
+         * - permissionPlugin.NOT_ANDROID (User is not on an Android device.)
+         * - permissionPlugin.ERROR (A message was printed in the console indicating the cause of the error.)
+         */
+    }, 
+    /* rationale dialog settings: an object with the options for texts and theme. */
+    {
+        rationaleMsg, /* message on the rationale notification dialog */
+        rationaleOkButton, /* text on the rationale OK button */
+        rationaleCancelButton, /* text on the rationale Cancel button */
+        theme /* theme to use to style the rationale dialog, see below */
+    }
 });
 ```
 
