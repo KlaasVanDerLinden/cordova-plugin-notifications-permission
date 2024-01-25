@@ -96,8 +96,9 @@ var permissionPlugin = window.cordova.notifications_permission;
 
 
 ```javascript
-permissionPlugin.maybeAskPermission({
-		callback: function(status){
+permissionPlugin.maybeAskPermission(
+		/* Callback that returns the status. */
+		function(status){
 			/**
 			 * status can be one of the following:
 			 * - permissionPlugin.NEWLY_GRANTED ("Allow" has been clicked on the System Dialog)
@@ -106,9 +107,11 @@ permissionPlugin.maybeAskPermission({
 			 * - permissionPlugin.DENIED_THROUGH_RATIONALE_DIALOG (User clicked on the rationale dialog's Cancel button.)
 			 * - permissionPlugin.NOT_NEEDED (User is on device before Android 13 (API Level 33).)
 			 * - permissionPlugin.NOT_ANDROID (Not on an Android device.)
+			 * - permissionPlugin.ERROR (A message was printed in the console indicating the cause of the error.)
 			 */
 		}, 
-		rationaleDialog: {
+		/* rationaleDialog settings */
+		{
 			rationaleMsg, /* message on the rationale notification dialog */
 			rationaleOkButton, /* text on the rationale OK button */
 			rationaleCancelButton, /* text on the rationale Cancel button */
@@ -165,16 +168,17 @@ Theme_Material_Light_Dialog_Presentation: 16974398
 
 ### Full Example
 
-You only need to add this bit of code and you are set. If you want to you can do something with the status that is being returned. Since a Foreground service also works even if it's notification is not allowed (at least in my experience), just calling `maybeAskPermission` is enough. If the user grants permission he/she will see the notification, else he/she will have to live without it.
+You only need to add this bit of code and you are set. Place it somewhere within the Cordova device ready call. If you want to you can do something with the status that is being returned. Since a Foreground service also works even if it's notification is not allowed (at least in my experience), just calling `maybeAskPermission` is enough. If the user grants permission he/she will see the notification, else he/she will have to live without it.
 
 ```javascript
+// function onDeviceReady() { // wait for cordova to initialize...
 let permissionPlugin = window.cordova.notifications_permission;
 let msg = "You really need to give permission!";
 let okButton = "OK";
 let cancelButton = "Not now";
 let theme = permissionPlugin.themes.Theme_DeviceDefault_Dialog_Alert;
-permissionPlugin.maybeAskPermission({
-	callback: function(status) {
+permissionPlugin.maybeAskPermission(
+	function(status) {
 		/* Permission is either granted, denied, or not needed. */
 		switch(status){
 			case permissionPlugin.NEWLY_GRANTED:
@@ -187,13 +191,16 @@ permissionPlugin.maybeAskPermission({
 			case permissionPlugin.NOT_ANDROID:
 				/* The notification does not show. */
 				break;	
+			case permissionPlugin.ERROR:
+				/* See console for error message */
+				break;
 		}
 	},
-	rationaleDialog: {
+	{
 		msg: msg,
 		okButton: okButton,
 		cancelButton: cancelButton,
 		theme: theme
 	}
-});
+);
 ```

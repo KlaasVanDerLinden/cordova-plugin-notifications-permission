@@ -8,10 +8,11 @@ let NotificationsPermission = {
 	DENIED_THROUGH_RATIONALE_DIALOG: "denied_through_rationale_dialog",
 	NOT_NEEDED: "not_needed",
 	NOT_ANDROID: "not_android",
+	ERROR: "error",
 	/**
 	 * Show a notification to the user asking for permission to post notifications to the lock screen.
 	 */
-	maybeAskPermission: function(onSuccess, rationaleDialog){
+	maybeAskPermission: function(onResult, rationaleDialog){
 		/* Only for Android. Else return window.cordova.notifications_permission.NOT_ANDROID */
 		if(cordova.platformId === 'android'){
 			
@@ -29,10 +30,11 @@ let NotificationsPermission = {
 			 * 	- window.cordova.notifications_permission.DENIED_BY_RATIONALE_DIALOG or
 			 *  - window.cordova.notifications_permission.NOT_NEEDED( < Android 13 (API Level 33)) or
 			 *  - window.cordova.notifications_permission.NOT_ANDROID
+			 *  - window.cordova.notifications_permission.ERROR (see console);
 			 * Else error callback is called. Developers should console.log the error to see what happens.
 			 */
 			exec(function(status){
-				onSuccess(status);
+				onResult(status);
 			}, function(error){
 				console.log("error in plugin cordova-plugin-notifications-permission", error);
 			}, "NotificationsPermission", "maybeAskPermission", 
