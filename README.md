@@ -121,7 +121,7 @@ permissionPlugin.maybeAskPermission(
         rationaleCancelButton, /* text on the rationale Cancel button */
         theme /* theme to use to style the rationale dialog, see below */
     }
-});
+);
 ```
 
 Asks for permission if not done already or declined. Permission is asked through the official - and only - Android System dialog. If permission is not granted by the user, a second time the app starts a "rationale" dialog is displayed explaining why permission needs to be given. You can customize the message, buttons, and theme of this dialog.

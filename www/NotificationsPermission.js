@@ -77,3 +77,17 @@ let NotificationsPermission = {
 };
 
 module.exports = NotificationsPermission;
+
+permissionPlugin.maybeAskPermission(
+    /* Callback that returns the status. */
+    function(status){
+		/* Read the permission status. Can be granted or denied */
+    }, 
+    /* rationale dialog settings: an object with the options for texts and theme. */
+    {
+        rationaleMsg, /* message on the rationale notification dialog */
+        rationaleOkButton, /* text on the rationale OK button */
+        rationaleCancelButton, /* text on the rationale Cancel button */
+        theme /* theme to use to style the rationale dialog, see below */
+    }
+);
