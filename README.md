@@ -116,9 +116,9 @@ permissionPlugin.maybeAskPermission(
     }, 
     /* rationale dialog settings: an object with the options for texts and theme. */
     {
-        rationaleMsg, /* message on the rationale notification dialog */
-        rationaleOkButton, /* text on the rationale OK button */
-        rationaleCancelButton, /* text on the rationale Cancel button */
+        msg, /* message on the rationale notification dialog */
+        okButton, /* text on the rationale OK button */
+        cancelButton, /* text on the rationale Cancel button */
         theme /* theme to use to style the rationale dialog, see below */
     }
 );
