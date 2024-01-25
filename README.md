@@ -100,10 +100,11 @@ permissionPlugin.maybeAskPermission({
 		callback: function(status){
 			/**
 			 * status can be one of the following:
-			 * - permissionPlugin.GRANTED ("Allow" has been clicked on the System Dialog)
-			 * - permissionPlugin.DENIED_BY_SYSTEM_DIALOG ("Don't Allow" was clicked)
-			 * - permissionPlugin.DENIED_BY_RATIONALE_DIALOG (Clicked on the rationale dialog's Cancel button.)
-			 * - permissionPlugin.NOT_NEEDED (On device before Android 13 (API Level 33).)
+			 * - permissionPlugin.NEWLY_GRANTED ("Allow" has been clicked on the System Dialog)
+			 * - permissionPlugin.ALREADY_GRANTED (User has already allowed the notification some time ago.)
+			 * - permissionPlugin.DENIED_THROUGH_SYSTEM_DIALOG ("Don't Allow" was clicked)
+			 * - permissionPlugin.DENIED_THROUGH_RATIONALE_DIALOG (User clicked on the rationale dialog's Cancel button.)
+			 * - permissionPlugin.NOT_NEEDED (User is on device before Android 13 (API Level 33).)
 			 * - permissionPlugin.NOT_ANDROID (Not on an Android device.)
 			 */
 		}, 
@@ -116,13 +117,13 @@ permissionPlugin.maybeAskPermission({
 });
 ```
 
-Asks for permission if not done already or declined. Permission is asked through the official - and only - Android system dialog. If permission is not granted by the user, a second time the app starts a "rationale" dialog is displayed explaining why permission needs to be given. You can customize the text, buttons, and theme of this dialog.
+Asks for permission if not done already or declined. Permission is asked through the official - and only - Android System dialog. If permission is not granted by the user, a second time the app starts a "rationale" dialog is displayed explaining why permission needs to be given. You can customize the message, buttons, and theme of this dialog.
 
 See below for an example of it's usage.
 
 ### Themes
 
-The following native Android themes can be used to style your rationale dialog. Use them like this: `cordova.notifications_permission.themes.Theme_DeviceDefault_Dialog` (or as the value `16974126`), passing it as `theme` argument to the `maybeAskPermission` method.
+The following native Android themes can be used to style your rationale dialog. Use them like this: `cordova.notifications_permission.themes.Theme_DeviceDefault_Dialog` (or as the int value `16974126`), passing it as `theme` argument to the `maybeAskPermission` method.
 
 
 ```javascript
@@ -176,12 +177,13 @@ permissionPlugin.maybeAskPermission({
 	callback: function(status) {
 		/* Permission is either granted, denied, or not needed. */
 		switch(status){
-			case permissionPlugin.GRANTED:
+			case permissionPlugin.NEWLY_GRANTED:
+			case permissionPlugin.ALREADY_GRANTED:
 			case permissionPlugin.NOT_NEEDED:
 				/* Notification shows the same as it did before Android 13 (API Level 33). */
 				break;
-			case permissionPlugin.DENIED_BY_RATIONALE_DIALOG:
-			case permissionPlugin.DENIED_BY_SYSTEM_DIALOG:
+			case permissionPlugin.DENIED_THROUGH_SYSTEM_DIALOG:
+			case permissionPlugin.DENIED_THROUGH_RATIONALE_DIALOG:
 			case permissionPlugin.NOT_ANDROID:
 				/* The notification does not show. */
 				break;	
@@ -193,5 +195,5 @@ permissionPlugin.maybeAskPermission({
 		cancelButton: cancelButton,
 		theme: theme
 	}
-);
+});
 ```

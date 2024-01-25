@@ -2,9 +2,10 @@ let exec = require('cordova/exec');
 let cordova = require('cordova');	
 let NotificationsPermission = {
 	/* Constants for the returned status of the permission. */
-	GRANTED: "granted",
-	DENIED_BY_SYSTEM_DIALOG: "denied_by_system_dialog",
-	DENIED_BY_RATIONALE_DIALOG: "denied_by_rationale_dialog",
+	NEWLY_GRANTED: "newly_granted",
+	ALREADY_GRANTED: "already_granted",
+	DENIED_THROUGH_SYSTEM_DIALOG: "denied_through_system_dialog",
+	DENIED_THROUGH_RATIONALE_DIALOG: "denied_through_rationale_dialog",
 	NOT_NEEDED: "not_needed",
 	NOT_ANDROID: "not_android",
 	/**

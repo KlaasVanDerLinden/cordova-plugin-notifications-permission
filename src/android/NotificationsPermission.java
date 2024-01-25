@@ -40,9 +40,10 @@ public class NotificationsPermission extends CordovaPlugin {
 	// Tag for logging purposes
 	private static final String TAG = "NotificationsPermission";
 	// Constants for permission status
-	public static final String GRANTED = "granted";
-	public static final String DENIED_BY_SYSTEM_DIALOG = "denied_by_system_dialog";
-	public static final String DENIED_BY_RATIONALE_DIALOG = "denied_by_rationale_dialog";
+	public static final String NEWLY_GRANTED = "newly_granted";
+	public static final String ALREADY_GRANTED = "already_granted";
+	public static final String DENIED_THROUGH_SYSTEM_DIALOG = "denied_through_system_dialog";
+	public static final String DENIED_THROUGH_RATIONALE_DIALOG = "denied_through_rationale_dialog";
 	public static final String NOT_NEEDED = "not_needed";
 	// Request code for permission request
 	private static final int REQUEST_CODE = 1;
@@ -61,7 +62,9 @@ public class NotificationsPermission extends CordovaPlugin {
 			}
 			if (status == ClickCallback.Status.NEGATIVE) {
 				PluginResult.Status resultStatus = PluginResult.Status.OK;
-				mCallbackContext.sendPluginResult(new PluginResult(resultStatus, mInstance.DENIED_BY_RATIONALE_DIALOG));
+				String permissionStatus = mInstance.DENIED_THROUGH_RATIONALE_DIALOG;
+				Log.v(TAG, permissionStatus);
+				mCallbackContext.sendPluginResult(new PluginResult(resultStatus, permissionStatus));
 			}
 		}
 	};
@@ -89,10 +92,10 @@ public class NotificationsPermission extends CordovaPlugin {
 		if (requestCode == REQUEST_CODE) {
 			String result = "undefined";
 			if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-				result = GRANTED;
+				result = NEWLY_GRANTED;
 			}
 			else if(grantResults[0] == PackageManager.PERMISSION_DENIED){
-				result = DENIED_BY_SYSTEM_DIALOG;
+				result = DENIED_THROUGH_SYSTEM_DIALOG;
 			}
 			Log.v(TAG, result);
 			PluginResult.Status status = PluginResult.Status.OK;
@@ -122,8 +125,9 @@ public class NotificationsPermission extends CordovaPlugin {
 				String result;
 				String[] perms = {Manifest.permission.POST_NOTIFICATIONS};
 				if (cordova.hasPermission(Manifest.permission.POST_NOTIFICATIONS)) {
-					// Already have permission, return GRANTED
-					result = GRANTED;
+					// Already have permission, return ALREADY_GRANTED
+					result = ALREADY_GRANTED;
+					Log.v(TAG, result);
 					PluginResult.Status status = PluginResult.Status.OK;
 					callbackContext.sendPluginResult(new PluginResult(status, result));
 				} else {
