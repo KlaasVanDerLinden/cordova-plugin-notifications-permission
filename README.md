@@ -40,13 +40,13 @@ This plugin defines the global `window.cordova.notifications_permission` and its
 - 1. First call to `maybeAskPermission`: Shows System dialog. User chooses:
 
 <ul>
-		
+        
 - "Allow": You are allowed to show notifications. No further dialog for the user.
-	
+    
 - "Don't Allow": continue to 2.
 
 </ul>
-	
+    
 - 2. Second call (and any further calls) to `maybeAskPermission`: Shows Rationale dialog explaining why permission is needed. User chooses:
 
 <ul>
@@ -64,7 +64,7 @@ This plugin defines the global `window.cordova.notifications_permission` and its
 - "Not now": continue to 2.
 
 </ul>
-	
+    
 </ul>
 
 ## Prerequisites
@@ -97,30 +97,30 @@ var permissionPlugin = window.cordova.notifications_permission;
 
 ```javascript
 permissionPlugin.maybeAskPermission(
-		/* Callback that returns the status. */
-		function(status){
-			/**
-			 * status can be one of the following:
-			 * - permissionPlugin.NEWLY_GRANTED_WITHOUT_RATIONALE ("Allow" has been clicked on the System Dialog)
-			 * - permissionPlugin.NEWLY_GRANTED_AFTER_RATIONALE ("Allow" has been clicked on the System Dialog after have confirmed the rationale dialog.)
-			 * - permissionPlugin.ALREADY_GRANTED (User has already allowed the notification at some point earlier.)
-			 * - permissionPlugin.NEWLY_DENIED_NOT_PERMANENTLY  ("Don't allow" clicked or swiped away for the first time. OS will try again in the future.)
-			 * - permissionPlugin.NEWLY_DENIED_PERMANENTLY  ("Don't allow" clicked. OS will never ask again.)
-			 * - permissionPlugin.ALREADY_DENIED_PERMANENTLY  (OS decided to stop asking at some point earlier.)
-			 * - permissionPlugin.ALREADY_DENIED_NOT_PERMANENTLY  (User denied again. But the OS will try again in the future.)
-			 * - permissionPlugin.DENIED_THROUGH_RATIONALE_DIALOG (User clicked on the rationale dialog's Cancel button.)
-			 * - permissionPlugin.NOT_NEEDED (User is on device before Android 13 (API Level 33).)
-			 * - permissionPlugin.NOT_ANDROID (User is not on an Android device.)
-			 * - permissionPlugin.ERROR (A message was printed in the console indicating the cause of the error.)
-			 */
-		}, 
-		/* rationale dialog settings: an object with the options for texts and theme. */
-		{
-			rationaleMsg, /* message on the rationale notification dialog */
-			rationaleOkButton, /* text on the rationale OK button */
-			rationaleCancelButton, /* text on the rationale Cancel button */
-			theme /* theme to use to style the rationale dialog, see below */
-		}
+        /* Callback that returns the status. */
+        function(status){
+            /**
+             * status can be one of the following:
+             * - permissionPlugin.NEWLY_GRANTED_WITHOUT_RATIONALE ("Allow" has been clicked on the System Dialog)
+             * - permissionPlugin.NEWLY_GRANTED_AFTER_RATIONALE ("Allow" has been clicked on the System Dialog after have confirmed the rationale dialog.)
+             * - permissionPlugin.ALREADY_GRANTED (User has already allowed the notification at some point earlier.)
+             * - permissionPlugin.NEWLY_DENIED_NOT_PERMANENTLY  ("Don't allow" clicked or swiped away for the first time. OS will try again in the future.)
+             * - permissionPlugin.NEWLY_DENIED_PERMANENTLY  ("Don't allow" clicked. OS will never ask again.)
+             * - permissionPlugin.ALREADY_DENIED_PERMANENTLY  (OS decided to stop asking at some point earlier.)
+             * - permissionPlugin.ALREADY_DENIED_NOT_PERMANENTLY  (User denied again. But the OS will try again in the future.)
+             * - permissionPlugin.DENIED_THROUGH_RATIONALE_DIALOG (User clicked on the rationale dialog's Cancel button.)
+             * - permissionPlugin.NOT_NEEDED (User is on device before Android 13 (API Level 33).)
+             * - permissionPlugin.NOT_ANDROID (User is not on an Android device.)
+             * - permissionPlugin.ERROR (A message was printed in the console indicating the cause of the error.)
+             */
+        }, 
+        /* rationale dialog settings: an object with the options for texts and theme. */
+        {
+            rationaleMsg, /* message on the rationale notification dialog */
+            rationaleOkButton, /* text on the rationale OK button */
+            rationaleCancelButton, /* text on the rationale Cancel button */
+            theme /* theme to use to style the rationale dialog, see below */
+        }
 });
 ```
 
@@ -188,34 +188,34 @@ let okButton = "OK";
 let cancelButton = "Not now";
 let theme = permissionPlugin.themes.Theme_DeviceDefault_Dialog_Alert;
 permissionPlugin.maybeAskPermission(
-	function(status) {
-		/* Permission is either granted, denied, or not needed. */
-		switch(status){
-			case permissionPlugin.NEWLY_GRANTED_WITHOUT_RATIONALE:
-			case permissionPlugin.NEWLY_GRANTED_AFTER_RATIONALE:
-			case permissionPlugin.ALREADY_GRANTED:
-			case permissionPlugin.NOT_NEEDED:
-				/* Notification shows the same as it did before Android 13 (API Level 33). */
-				break;
-			case permissionPlugin.NEWLY_DENIED_NOT_PERMANENTLY:
-			case permissionPlugin.NEWLY_DENIED_PERMANENTLY:
-			case permissionPlugin.ALREADY_DENIED_NOT_PERMANENTLY:
-			case permissionPlugin.ALREADY_DENIED_PERMANENTLY:
-			case permissionPlugin.DENIED_THROUGH_RATIONALE_DIALOG:
-			case permissionPlugin.NOT_ANDROID:
-				/* The notification does not show. */
-				break;	
-			case permissionPlugin.ERROR:
-				/* See console for error message */
-				break;
-		}
-	},
-	{
-		msg: msg,
-		okButton: okButton,
-		cancelButton: cancelButton,
-		theme: theme
-	}
+    function(status) {
+        /* Permission is either granted, denied, or not needed. */
+        switch(status){
+            case permissionPlugin.NEWLY_GRANTED_WITHOUT_RATIONALE:
+            case permissionPlugin.NEWLY_GRANTED_AFTER_RATIONALE:
+            case permissionPlugin.ALREADY_GRANTED:
+            case permissionPlugin.NOT_NEEDED:
+                /* Notification shows the same as it did before Android 13 (API Level 33). */
+                break;
+            case permissionPlugin.NEWLY_DENIED_NOT_PERMANENTLY:
+            case permissionPlugin.NEWLY_DENIED_PERMANENTLY:
+            case permissionPlugin.ALREADY_DENIED_NOT_PERMANENTLY:
+            case permissionPlugin.ALREADY_DENIED_PERMANENTLY:
+            case permissionPlugin.DENIED_THROUGH_RATIONALE_DIALOG:
+            case permissionPlugin.NOT_ANDROID:
+                /* The notification does not show. */
+                break;    
+            case permissionPlugin.ERROR:
+                /* See console for error message */
+                break;
+        }
+    },
+    {
+        msg: msg,
+        okButton: okButton,
+        cancelButton: cancelButton,
+        theme: theme
+    }
 );
 /* END Your code */
 }
