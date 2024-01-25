@@ -18,6 +18,8 @@
 */
 package nl.klaasmaakt.cordova.notifications_permission;
 import android.Manifest;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
@@ -39,26 +41,42 @@ import org.json.JSONException;
 public class NotificationsPermission extends CordovaPlugin {
 	// Tag for logging purposes
 	private static final String TAG = "NotificationsPermission";
+	// The permission we need
+	private static final String PERMISSION = Manifest.permission.POST_NOTIFICATIONS;
 	// Constants for permission status
-	public static final String NEWLY_GRANTED = "newly_granted";
+	public static final String NEWLY_GRANTED_AFTER_RATIONALE = "newly_granted_after_rationale";
+	public static final String NEWLY_GRANTED_WITHOUT_RATIONALE = "newly_granted_without_rationale";
 	public static final String ALREADY_GRANTED = "already_granted";
-	public static final String DENIED_THROUGH_SYSTEM_DIALOG = "denied_through_system_dialog";
+	public static final String ALREADY_DENIED_PERMANENTLY = "already_denied_permanently";
+	public static final String NEWLY_DENIED_PERMANENTLY = "newly_denied_permanently";
+	public static final String ALREADY_DENIED_NOT_PERMANENTLY = "already_denied_not_permanently";
+	public static final String NEWLY_DENIED_NOT_PERMANENTLY = "newly_denied_not_permanently";
 	public static final String DENIED_THROUGH_RATIONALE_DIALOG = "denied_through_rationale_dialog";
 	public static final String NOT_NEEDED = "not_needed";
 	// Request code for permission request
 	private static final int REQUEST_CODE = 1;
+	// Key to store in sharedpreference whether the notifcication has needed a rationale before
+	private static final String SHARED_PREFERENCES_KEY = "shared_preferences_key";
+	private static final String SP_RATIONALE_HAS_BEEN_NEEDED_BEFORE_KEY = "Rationale_has_been_needed_before";
+	private static final String SP_WE_HAVE_BEEN_HERE_BEFORE_KEY = "we_have_been_here_before";
+	// Stores the before state of shouldRequestPermissionRationale to differentiate between permanently and temporarily denied.
+	private boolean beforeClickPermissionRat;
 	// Dialog ID for managing multiple dialogs
 	private static final String DIALOG_ID = "dialog";
 	// Callback context for communicating with Cordova
 	private CallbackContext mCallbackContext;
 	// Instance of NotificationsPermission for referencing in callbacks
 	private NotificationsPermission mInstance;
+	// Keeps track of whether the rationale has shown before making new requestPermission
+	private boolean hasPassedRationale = false;
 	// ClickCallback for handling positive and negative button clicks
 	private ClickCallback mClickCallback = new ClickCallback() {
 		@Override
 		public void onClick(Status status) {
 			if (status == ClickCallback.Status.POSITIVE) {
-				cordova.requestPermission(mInstance, REQUEST_CODE, Manifest.permission.POST_NOTIFICATIONS);
+				beforeClickPermissionRat = mInstance.shouldShowRationale();
+				hasPassedRationale = true;
+				cordova.requestPermission(mInstance, REQUEST_CODE, PERMISSION);
 			}
 			if (status == ClickCallback.Status.NEGATIVE) {
 				PluginResult.Status resultStatus = PluginResult.Status.OK;
@@ -92,10 +110,59 @@ public class NotificationsPermission extends CordovaPlugin {
 		if (requestCode == REQUEST_CODE) {
 			String result = "undefined";
 			if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-				result = NEWLY_GRANTED;
+				if(hasPassedRationale == true){
+					result = NEWLY_GRANTED_AFTER_RATIONALE;
+				}
+				else {
+					result = NEWLY_GRANTED_WITHOUT_RATIONALE;
+				}
 			}
 			else if(grantResults[0] == PackageManager.PERMISSION_DENIED){
-				result = DENIED_THROUGH_SYSTEM_DIALOG;
+				/* We need to check whether we have been in the process or the user has just started
+				 * if the rationale dialog has been needed before we know this is not the first start
+				 */
+				boolean rationaleHasBeenNeededBefore = getRationaleHasBeenNeededBefore();
+
+				/* Also check whether we arrive her for a second time, so we can set already denied
+				 * properly next time.
+				 */
+				boolean haveWeBeenHereBefore = getHaveWeBeenHereBefore();
+				saveHaveWeBeenHereBefore();
+				boolean afterClickPermissionRat = shouldShowRationale();
+				// if true than we save it so we know this is not the first time
+				if(afterClickPermissionRat == true){
+					saveRationaleHasBeenNeededBefore();
+				}
+				/* Since we know te state of shouldShowRationale before and after we requestPermission
+				 * we know that there is still no need to show the rationale so was already denied
+				 * or the whole process hasn't started yet since the first dialog has never finished.
+				 */
+				if(beforeClickPermissionRat == false && afterClickPermissionRat == false){
+					/* We have had the first dialog a while ago, so this is the end */
+					if(rationaleHasBeenNeededBefore == true){
+						result = ALREADY_DENIED_PERMANENTLY;
+					}
+					else if(haveWeBeenHereBefore == true){
+						result = ALREADY_DENIED_NOT_PERMANENTLY;
+					}
+					else{
+						result = NEWLY_DENIED_NOT_PERMANENTLY;
+					}
+				}
+				else if(beforeClickPermissionRat == false && afterClickPermissionRat == true){
+					if(haveWeBeenHereBefore == true) {
+						result = ALREADY_DENIED_NOT_PERMANENTLY;
+					}
+					else{
+						result = NEWLY_DENIED_NOT_PERMANENTLY;
+					}
+				}
+				else if(beforeClickPermissionRat == true && afterClickPermissionRat == false){
+					result = NEWLY_DENIED_PERMANENTLY;
+				}
+				else if(beforeClickPermissionRat == true && afterClickPermissionRat == true){
+					result = ALREADY_DENIED_NOT_PERMANENTLY;
+				}
 			}
 			Log.v(TAG, result);
 			PluginResult.Status status = PluginResult.Status.OK;
@@ -116,33 +183,33 @@ public class NotificationsPermission extends CordovaPlugin {
 		mCallbackContext = callbackContext;
 		if(Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU){
 			PluginResult.Status status = PluginResult.Status.OK;
-			mCallbackContext.sendPluginResult(new PluginResult(status, NOT_NEEDED));
+			String statusResult = NOT_NEEDED;
+			Log.v(TAG, statusResult);
+			mCallbackContext.sendPluginResult(new PluginResult(status, statusResult));
  			return true;
 		}
 		cordova.getThreadPool().execute(() -> {
 			try {
-				AppCompatActivity activity = cordova.getActivity();
-				String result;
-				String[] perms = {Manifest.permission.POST_NOTIFICATIONS};
-				if (cordova.hasPermission(Manifest.permission.POST_NOTIFICATIONS)) {
+				if (cordova.hasPermission(PERMISSION)) {
 					// Already have permission, return ALREADY_GRANTED
-					result = ALREADY_GRANTED;
+					String result = ALREADY_GRANTED;
 					Log.v(TAG, result);
 					PluginResult.Status status = PluginResult.Status.OK;
 					callbackContext.sendPluginResult(new PluginResult(status, result));
-				} else {
+				} else if (shouldShowRationale()) {
 					// Set text for extra dialog and its buttons
 					String rationaleMsg = args.getString(0);
 					String positiveButton = args.getString(1);
 					String negativeButton = args.getString(2);
 					int theme = Integer.parseInt(args.getString(3));
-					if (shouldShowRationale(perms)) {
-						showRequestPermissionRationale(
-								rationaleMsg, positiveButton, negativeButton, theme, REQUEST_CODE, perms);
-					} else {
-						cordova.requestPermission(mInstance, REQUEST_CODE, Manifest.permission.POST_NOTIFICATIONS);
-					}
+					showRequestPermissionRationale(
+							rationaleMsg, positiveButton, negativeButton, theme, REQUEST_CODE);
+				} else {
+					// Save the status now in order to determine at return whether request is permanently denied.
+					beforeClickPermissionRat = shouldShowRationale();
+					cordova.requestPermission(mInstance, REQUEST_CODE, PERMISSION);
 				}
+
 			} catch (JSONException e) {
 				PluginResult.Status status = PluginResult.Status.ERROR;
 				mCallbackContext.sendPluginResult(new PluginResult(status, e.toString()));
@@ -154,28 +221,14 @@ public class NotificationsPermission extends CordovaPlugin {
 	/**
 	 * Check if rationale for permission should be shown.
 	 *
-	 * @param perms The array of requested permissions.
 	 * @return True if rationale should be shown, false otherwise.
 	 */
-	private boolean shouldShowRationale(@NonNull String... perms) {
-		for (String perm : perms) {
-			if (shouldShowRequestPermissionRationale(perm)) {
-				return true;
-			}
+	private boolean shouldShowRationale() {
+		if (ActivityCompat.shouldShowRequestPermissionRationale(cordova.getActivity(), PERMISSION)) {
+			return true;
 		}
 		return false;
 	}
-
-	/**
-	 * Check if rationale for a specific permission should be shown.
-	 *
-	 * @param perm The requested permission.
-	 * @return True if rationale should be shown, false otherwise.
-	 */
-	public boolean shouldShowRequestPermissionRationale(@NonNull String perm) {
-		return ActivityCompat.shouldShowRequestPermissionRationale(cordova.getActivity(), perm);
-	}
-
 	/**
 	 * Show the permission rationale dialog.
 	 *
@@ -184,15 +237,13 @@ public class NotificationsPermission extends CordovaPlugin {
 	 * @param negativeButton The text for the negative button.
 	 * @param theme           The theme resource ID for the dialog.
 	 * @param requestCode     The request code associated with the permission request.
-	 * @param perms           The array of requested permissions.
 	 */
 	public void showRequestPermissionRationale(
 			@NonNull String rationaleMsg,
 			@NonNull String positiveButton,
 			@NonNull String negativeButton,
 			@StyleRes int theme,
-			int requestCode,
-			@NonNull String... perms) {
+			int requestCode) {
 		AppCompatActivity activity = cordova.getActivity();
 		// DialogFragment.show() will take care of adding the fragment
 		// in a transaction. We also want to remove any currently showing
@@ -208,5 +259,28 @@ public class NotificationsPermission extends CordovaPlugin {
 		DialogFragment newFragment = PermissionsRationaleDialogFragment.newInstance(
 				rationaleMsg, positiveButton, negativeButton, mClickCallback, theme, requestCode);
 		newFragment.show(ft, DIALOG_ID);
+	}
+	public void saveRationaleHasBeenNeededBefore(){
+		setSavedPref(SP_RATIONALE_HAS_BEEN_NEEDED_BEFORE_KEY);
+	}
+	public boolean getRationaleHasBeenNeededBefore(){
+		return getSavedPref(SP_RATIONALE_HAS_BEEN_NEEDED_BEFORE_KEY);
+	}
+	public void saveHaveWeBeenHereBefore() {
+		setSavedPref(SP_WE_HAVE_BEEN_HERE_BEFORE_KEY);
+	}
+	public boolean getHaveWeBeenHereBefore(){
+		return getSavedPref(SP_WE_HAVE_BEEN_HERE_BEFORE_KEY);
+	}
+	public void setSavedPref(String pref){
+		Context context = cordova.getContext();
+		SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_KEY,Context.MODE_PRIVATE);
+		sharedPreferences.edit().putString(pref, "true").apply();
+	}
+	public boolean getSavedPref(String pref){
+		Context context = cordova.getContext();
+		SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_KEY,Context.MODE_PRIVATE);
+		String savedPref = sharedPreferences.getString(pref, "false");
+		return savedPref.equals("true") ? true : false;
 	}
 }

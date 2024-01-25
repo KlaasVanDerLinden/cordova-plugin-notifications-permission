@@ -1,10 +1,14 @@
-let exec = require('cordova/exec');
-let cordova = require('cordova');	
+let exec = require("cordova/exec");
+let cordova = require("cordova");	
 let NotificationsPermission = {
 	/* Constants for the returned status of the permission. */
-	NEWLY_GRANTED: "newly_granted",
+	NEWLY_GRANTED_AFTER_RATIONALE: "newly_granted_after_rationale",
+	NEWLY_GRANTED_WITHOUT_RATIONALE: "newly_granted_without_rationale",
 	ALREADY_GRANTED: "already_granted",
-	DENIED_THROUGH_SYSTEM_DIALOG: "denied_through_system_dialog",
+	ALREADY_DENIED_PERMANENTLY: "already_denied_permanently",
+	NEWLY_DENIED_PERMANENTLY: "newly_denied_permanently",
+	ALREADY_DENIED_NOT_PERMANENTLY: "already_denied_not_permanently",
+	NEWLY_DENIED_NOT_PERMANENTLY: "newly_denied_not_permanently",
 	DENIED_THROUGH_RATIONALE_DIALOG: "denied_through_rationale_dialog",
 	NOT_NEEDED: "not_needed",
 	NOT_ANDROID: "not_android",
@@ -14,7 +18,7 @@ let NotificationsPermission = {
 	 */
 	maybeAskPermission: function(onResult, rationaleDialog){
 		/* Only for Android. Else return window.cordova.notifications_permission.NOT_ANDROID */
-		if(cordova.platformId === 'android'){
+		if(cordova.platformId === "android"){
 			
 			/* Make sure the arguments are all set for the rationaleDialog. 
 			 * rationaleDialog should be an Object. All others default to defaults. 
@@ -25,8 +29,13 @@ let NotificationsPermission = {
 			let rationaleCancelButton =  (typeof(rationale.cancelButton) === "string") && rationale.cancelButton ? rationale.cancelButton : "Not now";
 			let theme = (typeof(rationale.theme) !== "undefined" && parseInt(rationale.theme)) ? parseInt(rationale.theme) : window.cordova.notifications_permission.themes.Theme_DeviceDefault_Dialog_Alert;
 			/* Call Android. Get 'status':
-			 *	- window.cordova.notifications_permission.GRANTED or 
-			 *  - window.cordova.notifications_permission.DENIED_BY_SYSTEM_DIALOG or
+			 *	- window.cordova.notifications_permission.NEWLY_GRANTED_AFTER_RATIONALE or 
+			 *  - window.cordova.notifications_permission.NEWLY_GRANTED_WITHOUT_RATIONALE or 
+			 *  - window.cordova.notifications_permission.ALREADY_GRANTED or 
+			 *  - window.cordova.notifications_permission.ALREADY_DENIED_PERMANENTLY or
+			 *  - window.cordova.notifications_permission.NEWLY_DENIED_PERMANENTLY or
+			 *  - window.cordova.notifications_permission.ALREADY_DENIED_NOT_PERMANENTLY or
+			 *  - window.cordova.notifications_permission.NEWLY_DENIED_NOT_PERMANENTLY or
 			 * 	- window.cordova.notifications_permission.DENIED_BY_RATIONALE_DIALOG or
 			 *  - window.cordova.notifications_permission.NOT_NEEDED( < Android 13 (API Level 33)) or
 			 *  - window.cordova.notifications_permission.NOT_ANDROID
