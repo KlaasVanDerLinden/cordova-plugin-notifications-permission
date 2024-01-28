@@ -1,7 +1,7 @@
----
-title: Notifications Permission
+<!--
+title: Cordova Plugin Notifications Permission
 description: Asks the user for permission to display your app's notifications on the lock screen.
----
+-->
 <!--
 # license: Licensed to the Apache Software Foundation (ASF) under one
 #         or more contributor license agreements.  See the NOTICE file
@@ -84,7 +84,7 @@ cordova plugin add cordova-plugin-notifications-permission
 
 ## Supported Platforms
 
-- All platforms are supported, but it only does something on Android.
+- This plugin was developed for Android. It has no effect on other platforms.
 
 ## The global
 

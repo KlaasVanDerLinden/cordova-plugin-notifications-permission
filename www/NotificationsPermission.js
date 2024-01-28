@@ -71,10 +71,18 @@ let NotificationsPermission = {
 		return typeof(obj[key]) !== "undefined" && parseInt(obj[key]) ? parseInt(obj[key]) : defaultInt;
 	},
 	getBoolAsString(obj, key, defaultBool){
-		let output = typeof(obj[key]) !== "undefined" && (obj[key] === true || obj[key] === false)? obj[key] : defaultBool;
-		output = output ? "true" : "false";
-		return output;
-	},
+	    let output = "";
+	    if(typeof(obj[key]) === "undefined"){
+	        obj[key] = defaultBool.toString();
+	    }
+        if(obj[key] === true || obj[key] === "true"){
+            output = "true";
+        }
+        else{
+            output = "false";
+        }
+        return output;
+    },
 	/* Private function to make sure we have an object as parameter to maybeAskPermission */
 	isObject(obj) {
 	    try {
