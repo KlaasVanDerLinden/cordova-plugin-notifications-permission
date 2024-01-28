@@ -116,15 +116,17 @@ permissionPlugin.maybeAskPermission(
     }, 
     /* rationale dialog settings: an object with the options for texts and theme. */
     {
-        msg, /* message on the rationale notification dialog */
-        okButton, /* text on the rationale OK button */
-        cancelButton, /* text on the rationale Cancel button */
-        theme /* theme to use to style the rationale dialog, see below */
+        show, /* whether to show te rationale dialog or skip it. Default true.
+        title, /* title of the rationale notification dialog. Default "Notification Permission". */
+        msg, /* message on the rationale notification dialog. Default "Permission is needed to show a notification on the lock screen." */
+        okButton, /* text on the rationale OK button. Default "OK". */
+        cancelButton, /* text on the rationale Cancel button. Default "Not now". */
+        theme /* theme to use to style the rationale dialog, see below. Default window.cordova.notifications_permission.themes.Theme_DeviceDefault_Dialog_Alert. */
     }
 );
 ```
 
-Asks for permission if not done already or declined. Permission is asked through the official - and only - Android System dialog. If permission is not granted by the user, a second time the app starts a "rationale" dialog is displayed explaining why permission needs to be given. You can customize the message, buttons, and theme of this dialog.
+Asks for permission if not done already or declined. Permission is asked through the official - and only - Android System dialog. If permission is not granted by the user, a second time a "rationale" dialog is displayed explaining why permission needs to be given. You can customize the message, buttons, and theme of this rationale dialog.
 
 See below for an example of it's usage.
 
@@ -183,6 +185,7 @@ function onDeviceReady() {
  * else alert might not show and your app seems to stall.)
  */
 let permissionPlugin = window.cordova.notifications_permission;
+let title = "Notification Permission";
 let msg = "You really need to give permission!";
 let okButton = "OK";
 let cancelButton = "Not now";
@@ -211,16 +214,18 @@ permissionPlugin.maybeAskPermission(
         }
     },
     {
+        show: true,
+        title:title,
         msg: msg,
         okButton: okButton,
         cancelButton: cancelButton,
         theme: theme
     }
 );
-/* END Your code */
+/* END OF Your code */
 }
-/* END Cordova code */
+/* END OF Cordova code */
 ```
 
-After the user denied permanently (`NEWLY_DENIED_PERMANENTLY`), the only way the user can enable the notification is through OS system settings. In case you want to display a message to the user how to do this, you can use this status or the next one `ALREADY_DENIED_PERMANENTLY` to show (your own) dialog to the user. This is not part of this plugin, but the `ALREADY_DENIED_PERMANENTLY` status should be the right place to implement this functionality.
+After the user denied permanently, the only way the user can enable the notification is through OS system settings. In case you want to display a message to the user how to do this, you can use the status `ALREADY_DENIED_PERMANENTLY` to show (your own) dialog to the user. This is not part of this plugin, but the `ALREADY_DENIED_PERMANENTLY` status should be the right place to implement this functionality.
 

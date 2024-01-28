@@ -24,10 +24,12 @@ let NotificationsPermission = {
 			 * rationaleDialog should be an Object. All others default to defaults. 
 			 */
 			let rationale = (typeof(rationaleDialog) === "undefined" || !this.isObject(rationaleDialog)) ? {} : rationaleDialog;
-			let rationaleMsg = (typeof(rationale.msg) === "string" && rationale.msg) ? rationale.msg : "Permission is needed to show a notification on the lock screen when this app is in the background.";
-			let rationaleOkButton =  (typeof(rationale.okButton) === "string" && rationale.okButton) ? rationale.okButton : "OK";
-			let rationaleCancelButton =  (typeof(rationale.cancelButton) === "string") && rationale.cancelButton ? rationale.cancelButton : "Not now";
-			let theme = (typeof(rationale.theme) !== "undefined" && parseInt(rationale.theme)) ? parseInt(rationale.theme) : window.cordova.notifications_permission.themes.Theme_DeviceDefault_Dialog_Alert;
+			let rationaleShow = this.getBoolAsString(rationale, "show", "true");
+			let rationaleTitle = this.getString(rationale, "title", "Notification Permission");
+			let rationaleMsg = this.getString(rationale, "msg", "Permission is needed to show a notification on the lock screen.");
+			let rationaleOkButton =  this.getString(rationale, "okButton", "OK");
+			let rationaleCancelButton =  this.getString(rationale, "cancelButton", "Not now");
+			let theme = this.getInt(rationale, "theme", window.cordova.notifications_permission.themes.Theme_DeviceDefault_Dialog_Alert);
 			/* Call Android. Get 'status':
 			 *	- window.cordova.notifications_permission.NEWLY_GRANTED_AFTER_RATIONALE or 
 			 *  - window.cordova.notifications_permission.NEWLY_GRANTED_WITHOUT_RATIONALE or 
@@ -45,9 +47,11 @@ let NotificationsPermission = {
 			exec(function(status){
 				onResult(status);
 			}, function(error){
-				console.log("error in plugin cordova-plugin-notifications-permission", error);
+				console.log("error in cordova-plugin-notifications-permission", error);
 			}, "NotificationsPermission", "maybeAskPermission", 
 			[
+				rationaleShow,
+				rationaleTitle,
 				rationaleMsg, 
 				rationaleOkButton, 
 				rationaleCancelButton,
@@ -58,6 +62,18 @@ let NotificationsPermission = {
 			/* return window.cordova.notifications_permission.NOT_ANDROID */
 			onSuccess(this.NOT_ANDROID);
 		}
+	},
+	/* Private functions to do typechecks and set defaults. */
+	getString(obj, key, defaultString){
+		return typeof(obj[key]) === "string" ? obj[key] : defaultString;
+	},
+	getInt(obj, key, defaultInt){
+		return typeof(obj[key]) !== "undefined" && parseInt(obj[key]) ? parseInt(obj[key]) : defaultInt;
+	},
+	getBoolAsString(obj, key, defaultBool){
+		let output = typeof(obj[key]) !== "undefined" && (obj[key] === true || obj[key] === false)? obj[key] : defaultBool;
+		output = output ? "true" : "false";
+		return output;
 	},
 	/* Private function to make sure we have an object as parameter to maybeAskPermission */
 	isObject(obj) {

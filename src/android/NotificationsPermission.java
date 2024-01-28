@@ -191,20 +191,25 @@ public class NotificationsPermission extends CordovaPlugin {
 		}
 		cordova.getThreadPool().execute(() -> {
 			try {
+				String showRationale = args.getString(0);
+				boolean weWantRationale = showRationale.equals("true") ? true : false;
+
 				if (cordova.hasPermission(PERMISSION)) {
 					// Already have permission, return ALREADY_GRANTED
 					String result = ALREADY_GRANTED;
 					Log.v(TAG, result);
 					PluginResult.Status status = PluginResult.Status.OK;
 					callbackContext.sendPluginResult(new PluginResult(status, result));
-				} else if (shouldShowRationale()) {
+				} else if (weWantRationale && shouldShowRationale()) {
 					// Set text for extra dialog and its buttons
-					String rationaleMsg = args.getString(0);
-					String positiveButton = args.getString(1);
-					String negativeButton = args.getString(2);
-					int theme = Integer.parseInt(args.getString(3));
+
+					String rationaleTitle = args.getString(1);
+					String rationaleMsg = args.getString(2);
+					String positiveButton = args.getString(3);
+					String negativeButton = args.getString(4);
+					int theme = Integer.parseInt(args.getString(5));
 					showRequestPermissionRationale(
-							rationaleMsg, positiveButton, negativeButton, theme, REQUEST_CODE);
+							rationaleTitle, rationaleMsg, positiveButton, negativeButton, theme, REQUEST_CODE);
 				} else {
 					// Save the status now in order to determine at return whether request is permanently denied.
 					beforeClickPermissionRat = shouldShowRationale();
@@ -240,7 +245,8 @@ public class NotificationsPermission extends CordovaPlugin {
 	 * @param requestCode     The request code associated with the permission request.
 	 */
 	public void showRequestPermissionRationale(
-			@NonNull String rationaleMsg,
+			@NonNull String title,
+			@NonNull String msg,
 			@NonNull String positiveButton,
 			@NonNull String negativeButton,
 			@StyleRes int theme,
@@ -258,7 +264,7 @@ public class NotificationsPermission extends CordovaPlugin {
 
 		// Create and show the dialog.
 		DialogFragment newFragment = PermissionsRationaleDialogFragment.newInstance(
-				rationaleMsg, positiveButton, negativeButton, mClickCallback, theme, requestCode);
+				title, msg, positiveButton, negativeButton, mClickCallback, theme, requestCode);
 		newFragment.show(ft, DIALOG_ID);
 	}
 

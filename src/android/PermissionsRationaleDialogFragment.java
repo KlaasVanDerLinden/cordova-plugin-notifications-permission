@@ -15,6 +15,7 @@ public class PermissionsRationaleDialogFragment extends DialogFragment {
     private static final String TAG = "PermissionsRationaleDialogFragment";
 
     // Keys for arguments to be supplied when creating an instance of the fragment
+    private static final String KEY_RATIONALE_TITLE = "rationaleTitle";
     private static final String KEY_RATIONALE_MESSAGE = "rationaleMsg";
     private static final String KEY_POSITIVE_BUTTON = "positiveButton";
     private static final String KEY_NEGATIVE_BUTTON = "negativeButton";
@@ -36,6 +37,7 @@ public class PermissionsRationaleDialogFragment extends DialogFragment {
      * @return A new instance of PermissionsRationaleDialogFragment.
      */
     static PermissionsRationaleDialogFragment newInstance(
+            String rationaleTitle,
             String rationaleMsg,
             String positiveButton,
             String negativeButton,
@@ -50,6 +52,7 @@ public class PermissionsRationaleDialogFragment extends DialogFragment {
 
         // Supply input as arguments
         Bundle args = new Bundle();
+        args.putString(KEY_RATIONALE_TITLE, rationaleTitle);
         args.putString(KEY_RATIONALE_MESSAGE, rationaleMsg);
         args.putString(KEY_POSITIVE_BUTTON, positiveButton);
         args.putString(KEY_NEGATIVE_BUTTON, negativeButton);
@@ -85,6 +88,7 @@ public class PermissionsRationaleDialogFragment extends DialogFragment {
                     // Call the negative button click callback
                     mClickCallback.onClick(ClickCallback.Status.NEGATIVE);
                 })
+                .setTitle(args.getString(KEY_RATIONALE_TITLE))
                 .create();
     }
 
