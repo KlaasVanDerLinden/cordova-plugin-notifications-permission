@@ -45,6 +45,10 @@ This plugin defines the global `window.cordova.notifications_permission` and its
 		* "Allow": You are allowed to show notifications. No further dialog for the user.
 		* "Don't Allow": You are not allowed to show notifications. No further dialog for the user.
 	* "Not now": continue to 2.
+<figure>
+	<img src="flowchart.png"/>
+	<caption>A flowchart explaining the process</caption>
+</figure>
 
 ## Prerequisites
 
