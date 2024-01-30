@@ -25,56 +25,35 @@ description: Asks the user for permission to display your app's notifications on
 
 
 
-This plugin provides the ability to have the Android user choose whether to display a notification on the lock screen from your app.  The user has to give a runtime permission (AKA a dangerous permission) for this since Android 13 (API level 33) and higher. See [the Android developer docs](https://developer.android.com/develop/ui/views/notifications/notification-permission) for an explanation.
+This plugin adds runtime permission for POST_NOTIFICATIONS to your app.  The user has to give a runtime permission (AKA a dangerous permission) for this since Android 13 (API level 33). See [the Android developer docs](https://developer.android.com/develop/ui/views/notifications/notification-permission) for an explanation.
 
-Before Android 13 (API Level 33) apps running a Foreground service did not have to have runtime permission from the user. The FOREGROUND_SERVICE permission implied the use of a notification. But that has changed. Apps running on Android 13 (API Level 33) do need two things:
-- These apps are required to have a notification (passed to the foreground service), so the user can see that the app is doing something in the foreground, while the app itself is in the background.
-- To show the necessary notification, since Android 13 (API Level 33), an app using a foreground service notification has to ask runtime permission.
+Before Android 13 (API Level 33) apps running a Foreground service did not have to have runtime permission to display notifications. The FOREGROUND_SERVICE permission implied the use of a notification. But that has changed. Apps running on Android 13 (API Level 33) do need two things:
+* These apps are required to have a notification (passed to the foreground service), so the user can see that the app is doing something in the foreground, while the app itself is in the background.
+* To show the necessary notification, since Android 13 (API Level 33), an app using a foreground service notification has to ask runtime permission.
 
 This plugin adds a system dialog ("Allow", "Deny") and a "rationale" dialog in case the user doesn't allow notifications in order to explain why the permission is needed.
 
 This plugin defines the global `window.cordova.notifications_permission` and its method `maybeAskPermission` that does all the heavy lifting to get the permission handled.
 
-<ul>
 
-- 1. First call to `maybeAskPermission`: Shows System dialog. User chooses:
 
-<ul>
-        
-- "Allow": You are allowed to show notifications. No further dialog for the user.
-    
-- "Don't Allow": continue to 2.
-
-</ul>
-    
-- 2. Second call (and any further calls) to `maybeAskPermission`: Shows Rationale dialog explaining why permission is needed. User chooses:
-
-<ul>
-
-- "OK": System dialog is shown again - a the last time. User chooses:
-
-<ul>
-
-- "Allow": You are allowed to show notifications. No further dialog for the user.
-
-- "Don't Allow": You are not allowed to show notifications. No further dialog for the user.
-
-</ul>
-
-- "Not now": continue to 2.
-
-</ul>
-    
-</ul>
+1. First call to `maybeAskPermission`: Shows System dialog. User chooses:
+	* "Allow": You are allowed to show notifications. No further dialog for the user.
+	* "Don't Allow": continue to 2.
+2. Second call (and any further calls) to `maybeAskPermission`: Shows Rationale dialog explaining why permission is needed. User chooses:
+	* "OK": System dialog is shown again - a the last time. User chooses:
+		* "Allow": You are allowed to show notifications. No further dialog for the user.
+		* "Don't Allow": You are not allowed to show notifications. No further dialog for the user.
+	* "Not now": continue to 2.
 
 ## Prerequisites
 
-- Your app has to target Android SDK Level 33 or higher for this plugin to have any effect at all. In your app's `config.xml`, add or adjust the following preference tag:
+* Your app has to target Android SDK Level 33 or higher for this plugin to have any effect at all. In your app's `config.xml`, add or adjust the following preference tag:
 
 ```xml
 <preference name="android-targetSdkVersion" value="33" />
 ```
-- In order to see how the plugin works, you will need a device or emulator with Android 13 (API Level 33) or higher.
+* In order to see how the plugin works, you will need a device or emulator with Android 13 (API Level 33) or higher.
 
 ## Installation
 
