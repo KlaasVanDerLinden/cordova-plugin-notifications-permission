@@ -46,7 +46,7 @@ This plugin defines the global `window.cordova.notifications_permission` and its
 		* "Don't Allow": You are not allowed to show notifications. No further dialog for the user.
 	* "Not now": continue to 2.
 <figure>
-	<img src="https://github.com/KlaasVanDerLinden/cordova-plugin-notifications-permission/blob/master/flowchart.svg?raw=true"/>
+	<img src="https://github.com/KlaasVanDerLinden/cordova-plugin-notifications-permission/blob/master/Flowchart.svg?raw=true"/>
 	<caption>A flowchart explaining the process and the different values for the status. The status ALREADY_DENIED_NOT_PERMANENTLY misses from this flow chart. It will happen when the user swipes away the System Dialog during the 2nd run. When the app user has already granted permission and afterwards revokes in Android system settings, the process starts over at the second run. (There is no way to distinguish this.)</caption>
 </figure>
 
