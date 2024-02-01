@@ -31,7 +31,7 @@ Before Android 13 (API Level 33) apps running a Foreground service did not have 
 * These apps are required to have a notification (passed to the foreground service), so the user can see that the app is doing something in the foreground, while the app itself is in the background.
 * To show the necessary notification, since Android 13 (API Level 33), an app using a foreground service notification has to ask runtime permission.
 
-This plugin adds a system dialog ("Allow", "Deny") and a "rationale" dialog in case the user doesn't allow notifications in order to explain why the permission is needed.
+This plugin adds a system dialog ("Allow", "Deny") and a "Rationale" dialog in case the user doesn't allow notifications in order to explain why the permission is needed. It also adds a "Last Resort" dialog: when the user has denied permission permanently, you can show a dialog explaning to the app user how to enable notifications from system settings. Both the Rationale Dialog and the Last resort Dialog can be skipped by setting their `show` properties to `false`.
 
 This plugin defines the global `window.cordova.notifications_permission` and its method `maybeAskPermission` that does all the heavy lifting to get the permission handled.
 
@@ -46,8 +46,8 @@ This plugin defines the global `window.cordova.notifications_permission` and its
 		* "Don't Allow": You are not allowed to show notifications. No further dialog for the user.
 	* "Not now": continue to 2.
 <figure>
-	<img src="flowchart.png"/>
-	<caption>A flowchart explaining the process</caption>
+	<img src="flowchart.svg"/>
+	<caption>A flowchart explaining the process and the different values for the status. The status ALREADY_DENIED_NOT_PERMANENTLY misses from this flow chart. It will happen when the user swipes away the System Dialog during the 2nd run. When the app user has already granted permission and afterwards revokes in Android system settings, the process starts over at the second run. (There is no way to distinguish this.)</caption>
 </figure>
 
 ## Prerequisites
@@ -86,12 +86,15 @@ permissionPlugin.maybeAskPermission(
          * status can be one of the following:
          * - permissionPlugin.NEWLY_GRANTED_WITHOUT_RATIONALE ("Allow" has been clicked on the System Dialog)
          * - permissionPlugin.NEWLY_GRANTED_AFTER_RATIONALE ("Allow" has been clicked on the System Dialog after have confirmed the rationale dialog.)
+         * - permissionPlugin.NEWLY_GRANTED_AFTER_SETTINGS (User was guided to system settings and switch on notifications.)
          * - permissionPlugin.ALREADY_GRANTED (User has already allowed the notification at some point earlier.)
          * - permissionPlugin.NEWLY_DENIED_NOT_PERMANENTLY  ("Don't allow" clicked or swiped away for the first time. OS will try again in the future.)
          * - permissionPlugin.NEWLY_DENIED_PERMANENTLY  ("Don't allow" clicked. OS will never ask again.)
          * - permissionPlugin.ALREADY_DENIED_PERMANENTLY  (OS decided to stop asking at some point earlier.)
          * - permissionPlugin.ALREADY_DENIED_NOT_PERMANENTLY  (User denied again. But the OS will try again in the future.)
          * - permissionPlugin.DENIED_THROUGH_RATIONALE_DIALOG (User clicked on the rationale dialog's Cancel button.)
+         * - permissionPlugin.DENIED_THROUGH_LAST_RESORT_DIALOG (User clicked "cancel" instead of going to settings.)
+         * - permissionPlugin.ALREADY_DENIED_PERMANENTLY_AFTER_SETTINGS (User was guided to system settings but chose not to allow.)
          * - permissionPlugin.NOT_NEEDED (User is on device before Android 13 (API Level 33).)
          * - permissionPlugin.NOT_ANDROID (User is not on an Android device.)
          * - permissionPlugin.ERROR (A message was printed in the console indicating the cause of the error.)
@@ -105,6 +108,10 @@ permissionPlugin.maybeAskPermission(
         okButton, /* text on the rationale OK button. Default "OK". */
         cancelButton, /* text on the rationale Cancel button. Default "Not now". */
         theme /* theme to use to style the rationale dialog, see below. Default window.cordova.notifications_permission.themes.Theme_DeviceDefault_Dialog_Alert. */
+    }
+    /* last resort dialog settings: an object with the options for texts and theme. */
+    {
+        /* see rationale dialog settings for properties */
     }
 );
 ```
@@ -168,17 +175,23 @@ function onDeviceReady() {
  * else alert might not show and your app seems to stall.)
  */
 let permissionPlugin = window.cordova.notifications_permission;
-let title = "Notification Permission";
-let msg = "You really need to give permission!";
-let okButton = "OK";
-let cancelButton = "Not now";
-let theme = permissionPlugin.themes.Theme_DeviceDefault_Dialog_Alert;
+let rationaleTitle = "Notification Permission";
+let rationaleMsg = "You really need to give permission!";
+let rationaleOkButton = "OK";
+let rationaleCancelButton = "Not now";
+let rationaleTheme = permissionPlugin.themes.Theme_DeviceDefault_Dialog_Alert;
+let lastResortTitle = "Notification Permission!";
+let lastResortMsg = "You really need to give permission! Now the only way left is through system settings.";
+let lastResortOkButton = "Settings";
+let lastResortCancelButton = "No thanks";
+let lastResortTheme = permissionPlugin.themes.Theme_DeviceDefault_Dialog_Alert;
 permissionPlugin.maybeAskPermission(
     function(status) {
         /* Permission is either granted, denied, or not needed. */
         switch(status){
             case permissionPlugin.NEWLY_GRANTED_WITHOUT_RATIONALE:
             case permissionPlugin.NEWLY_GRANTED_AFTER_RATIONALE:
+            case permissionPlugin NEWLY_GRANTED_AFTER_SETTINGS:
             case permissionPlugin.ALREADY_GRANTED:
             case permissionPlugin.NOT_NEEDED:
                 /* Notification shows the same as it did before Android 13 (API Level 33). */
@@ -188,6 +201,8 @@ permissionPlugin.maybeAskPermission(
             case permissionPlugin.ALREADY_DENIED_NOT_PERMANENTLY:
             case permissionPlugin.ALREADY_DENIED_PERMANENTLY:
             case permissionPlugin.DENIED_THROUGH_RATIONALE_DIALOG:
+            case permissionPlugin.DENIED_THROUGH_LAST_RESORT_DIALOG:
+            case permissionPlugin.ALREADY_DENIED_PERMANENTLY_AFTER_SETTINGS
             case permissionPlugin.NOT_ANDROID:
                 /* The notification does not show. */
                 break;    
@@ -198,11 +213,19 @@ permissionPlugin.maybeAskPermission(
     },
     {
         show: true,
-        title:title,
-        msg: msg,
-        okButton: okButton,
-        cancelButton: cancelButton,
-        theme: theme
+        title:rationaleTitle,
+        msg: rationaleMsg,
+        okButton: rationaleOkButton,
+        cancelButton: rationaleCancelButton,
+        theme: rationaleTheme
+    },
+    {
+        show: true,
+        title:lastResortTitle,
+        msg: lastResortMsg,
+        okButton: lastResortOkButton,
+        cancelButton: lastResortCancelButton,
+        theme: lastResortTheme
     }
 );
 /* END OF Your code */
@@ -210,5 +233,5 @@ permissionPlugin.maybeAskPermission(
 /* END OF Cordova code */
 ```
 
-After the user denied permanently, the only way the user can enable the notification is through OS system settings. In case you want to display a message to the user how to do this, you can use the status `ALREADY_DENIED_PERMANENTLY` to show (your own) dialog to the user. This is not part of this plugin, but the `ALREADY_DENIED_PERMANENTLY` status should be the right place to implement this functionality.
+
 

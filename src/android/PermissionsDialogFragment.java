@@ -9,18 +9,17 @@ import android.os.Bundle;
 /**
  * A DialogFragment to show a rationale dialog for permissions if needed.
  */
-public class PermissionsRationaleDialogFragment extends DialogFragment {
+public class PermissionsDialogFragment extends DialogFragment {
 
     // Tag for logging purposes
     private static final String TAG = "PermissionsRationaleDialogFragment";
 
     // Keys for arguments to be supplied when creating an instance of the fragment
-    private static final String KEY_RATIONALE_TITLE = "rationaleTitle";
-    private static final String KEY_RATIONALE_MESSAGE = "rationaleMsg";
-    private static final String KEY_POSITIVE_BUTTON = "positiveButton";
-    private static final String KEY_NEGATIVE_BUTTON = "negativeButton";
+    private static final String KEY_TITLE = "rationale_title";
+    private static final String KEY_MSG = "rationale_msg";
+    private static final String KEY_POSITIVE_BUTTON = "positive_button";
+    private static final String KEY_NEGATIVE_BUTTON = "negative_button";
     private static final String KEY_THEME = "theme";
-    private static final String KEY_REQUEST_CODE = "requestCode";
 
     // ClickCallback instance to handle positive and negative button clicks
     private static ClickCallback mClickCallback;
@@ -36,28 +35,26 @@ public class PermissionsRationaleDialogFragment extends DialogFragment {
      * @param requestCode     The request code associated with the permission request.
      * @return A new instance of PermissionsRationaleDialogFragment.
      */
-    static PermissionsRationaleDialogFragment newInstance(
-            String rationaleTitle,
-            String rationaleMsg,
+    static PermissionsDialogFragment newInstance(
+            String title,
+            String msg,
             String positiveButton,
             String negativeButton,
-            ClickCallback clickCallback,
             int theme,
-            int requestCode) {
+            ClickCallback clickCallback) {
         // Set the ClickCallback instance for handling button clicks
         mClickCallback = clickCallback;
 
         // Create a new instance of the fragment
-        PermissionsRationaleDialogFragment f = new PermissionsRationaleDialogFragment();
+        PermissionsDialogFragment f = new PermissionsDialogFragment();
 
         // Supply input as arguments
         Bundle args = new Bundle();
-        args.putString(KEY_RATIONALE_TITLE, rationaleTitle);
-        args.putString(KEY_RATIONALE_MESSAGE, rationaleMsg);
+        args.putString(KEY_TITLE, title);
+        args.putString(KEY_MSG, msg);
         args.putString(KEY_POSITIVE_BUTTON, positiveButton);
         args.putString(KEY_NEGATIVE_BUTTON, negativeButton);
         args.putInt(KEY_THEME, theme);
-        args.putInt(KEY_REQUEST_CODE, requestCode);
         f.setArguments(args);
 
         return f;
@@ -79,7 +76,7 @@ public class PermissionsRationaleDialogFragment extends DialogFragment {
 
         // Create an AlertDialog with the specified theme and message
         return new AlertDialog.Builder(requireContext(), args.getInt(KEY_THEME))
-                .setMessage(args.getString(KEY_RATIONALE_MESSAGE))
+                .setMessage(args.getString(KEY_MSG))
                 .setPositiveButton(args.getString(KEY_POSITIVE_BUTTON), (dialog, which) -> {
                     // Call the positive button click callback
                     mClickCallback.onClick(ClickCallback.Status.POSITIVE);
@@ -88,7 +85,7 @@ public class PermissionsRationaleDialogFragment extends DialogFragment {
                     // Call the negative button click callback
                     mClickCallback.onClick(ClickCallback.Status.NEGATIVE);
                 })
-                .setTitle(args.getString(KEY_RATIONALE_TITLE))
+                .setTitle(args.getString(KEY_TITLE))
                 .create();
     }
 

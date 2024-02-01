@@ -4,19 +4,22 @@ let NotificationsPermission = {
 	/* Constants for the returned status of the permission. */
 	NEWLY_GRANTED_AFTER_RATIONALE: "newly_granted_after_rationale",
 	NEWLY_GRANTED_WITHOUT_RATIONALE: "newly_granted_without_rationale",
+	NEWLY_GRANTED_AFTER_SETTINGS: "newly_granted_after_settings",
 	ALREADY_GRANTED: "already_granted",
 	ALREADY_DENIED_PERMANENTLY: "already_denied_permanently",
 	NEWLY_DENIED_PERMANENTLY: "newly_denied_permanently",
 	ALREADY_DENIED_NOT_PERMANENTLY: "already_denied_not_permanently",
 	NEWLY_DENIED_NOT_PERMANENTLY: "newly_denied_not_permanently",
 	DENIED_THROUGH_RATIONALE_DIALOG: "denied_through_rationale_dialog",
+	DENIED_THROUGH_LAST_RESORT_DIALOG: "denied_trough_last_resort_dialog",
+	ALREADY_DENIED_PERMANENTLY_AFTER_SETTINGS: "already_denied_permanently_after_settings",
 	NOT_NEEDED: "not_needed",
 	NOT_ANDROID: "not_android",
 	ERROR: "error",
 	/**
 	 * Show a notification to the user asking for permission to post notifications to the lock screen.
 	 */
-	maybeAskPermission: function(onResult, rationaleDialog){
+	maybeAskPermission: function(onResult, rationaleDialog, lastResortDialog){
 		/* Only for Android. Else return window.cordova.notifications_permission.NOT_ANDROID */
 		if(cordova.platformId === "android"){
 			
@@ -29,7 +32,15 @@ let NotificationsPermission = {
 			let rationaleMsg = this.getString(rationale, "msg", "Permission is needed to show a notification on the lock screen.");
 			let rationaleOkButton =  this.getString(rationale, "okButton", "OK");
 			let rationaleCancelButton =  this.getString(rationale, "cancelButton", "Not now");
-			let theme = this.getInt(rationale, "theme", window.cordova.notifications_permission.themes.Theme_DeviceDefault_Dialog_Alert);
+			let rationaleTheme = this.getInt(rationale, "theme", window.cordova.notifications_permission.themes.Theme_DeviceDefault_Dialog_Alert);
+			
+			let lastResort = (typeof(lastResortDialog) === "undefined" || !this.isObject(lastResortDialog)) ? {} : lastResortDialog;
+			let lastResortShow = this.getBoolAsString(lastResort, "show", "true");
+			let lastResortTitle = this.getString(lastResort, "title", "Notification Permission");
+			let lastResortMsg = this.getString(lastResort, "msg", "Notification permission has been set not to ask again! Please provide them from settings.");
+			let lastResortOkButton =  this.getString(lastResort, "okButton", "Settings");
+			let lastResortCancelButton =  this.getString(lastResort, "cancelButton", "Cancel");
+			let lastResortTheme = this.getInt(lastResort, "theme", window.cordova.notifications_permission.themes.Theme_DeviceDefault_Dialog_Alert);
 			/* Call Android. Get 'status':
 			 *	- window.cordova.notifications_permission.NEWLY_GRANTED_AFTER_RATIONALE or 
 			 *  - window.cordova.notifications_permission.NEWLY_GRANTED_WITHOUT_RATIONALE or 
@@ -55,7 +66,13 @@ let NotificationsPermission = {
 				rationaleMsg, 
 				rationaleOkButton, 
 				rationaleCancelButton,
-				theme
+				rationaleTheme,
+				lastResortShow,
+				lastResortTitle,
+				lastResortMsg, 
+				lastResortOkButton, 
+				lastResortCancelButton,
+				lastResortTheme
 			]);
 		}
 		else{

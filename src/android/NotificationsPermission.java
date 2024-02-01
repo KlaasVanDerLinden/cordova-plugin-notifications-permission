@@ -18,8 +18,10 @@
 */
 package nl.klaasmaakt.cordova.notifications_permission;
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.provider.Settings;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
@@ -44,16 +46,27 @@ public class NotificationsPermission extends CordovaPlugin {
 	// Constants for permission status
 	public static final String NEWLY_GRANTED_AFTER_RATIONALE = "newly_granted_after_rationale";
 	public static final String NEWLY_GRANTED_WITHOUT_RATIONALE = "newly_granted_without_rationale";
+	public static final String NEWLY_GRANTED_AFTER_SETTINGS = "newly_granted_after_settings";
 	public static final String ALREADY_GRANTED = "already_granted";
 	public static final String ALREADY_DENIED_PERMANENTLY = "already_denied_permanently";
 	public static final String NEWLY_DENIED_PERMANENTLY = "newly_denied_permanently";
 	public static final String ALREADY_DENIED_NOT_PERMANENTLY = "already_denied_not_permanently";
 	public static final String NEWLY_DENIED_NOT_PERMANENTLY = "newly_denied_not_permanently";
+	public static final String ALREADY_DENIED_PERMANENTLY_AFTER_SETTINGS = "already_denied_permanently_after_settings";
 	public static final String DENIED_THROUGH_RATIONALE_DIALOG = "denied_through_rationale_dialog";
+	public static final String DENIED_THROUGH_LAST_RESORT_DIALOG = "denied_through_last_resort_dialog";
 	public static final String NOT_NEEDED = "not_needed";
 	// Request code for permission request
-	private static final int REQUEST_CODE = 1;
+	private static final int REQUEST_CODE_PERMISSION = 1;
+	private static final int REQUEST_CODE_OPEN_SETTINGS = 1;
 	// Stores the before state of shouldRequestPermissionRationale to differentiate between permanently and temporarily denied.
+	private boolean mShowDialog;
+	private String mTitle;
+	private String mMsg;
+	private String mPositiveButton;
+	private String mNegativeButton;
+	private Integer mTheme;
+	private boolean mUserWentToSettings = false;
 	private boolean beforeClickPermissionRat;
 	// Dialog ID for managing multiple dialogs
 	private static final String DIALOG_ID = "dialog";
@@ -65,17 +78,32 @@ public class NotificationsPermission extends CordovaPlugin {
 	// Keeps track of whether the rationale has shown before making new requestPermission
 	private boolean hasPassedRationale = false;
 	// ClickCallback for handling positive and negative button clicks
-	private ClickCallback mClickCallback = new ClickCallback() {
+	private ClickCallback mClickCallbackRationale = new ClickCallback() {
 		@Override
 		public void onClick(Status status) {
 			if (status == ClickCallback.Status.POSITIVE) {
 				beforeClickPermissionRat = mInstance.shouldShowRationale();
 				hasPassedRationale = true;
-				cordova.requestPermission(mInstance, REQUEST_CODE, PERMISSION);
+				cordova.requestPermission(mInstance, REQUEST_CODE_PERMISSION, PERMISSION);
 			}
 			if (status == ClickCallback.Status.NEGATIVE) {
 				PluginResult.Status resultStatus = PluginResult.Status.OK;
 				String permissionStatus = mInstance.DENIED_THROUGH_RATIONALE_DIALOG;
+				Log.v(TAG, permissionStatus);
+				mCallbackContext.sendPluginResult(new PluginResult(resultStatus, permissionStatus));
+			}
+		}
+	};
+	private ClickCallback mCLickCallbackLastResort = new ClickCallback() {
+		@Override
+		public void onClick(Status status) {
+			if (status == ClickCallback.Status.POSITIVE) {
+				mUserWentToSettings = true;
+				cordova.getActivity().startActivityForResult(new Intent(Settings.ACTION_ALL_APPS_NOTIFICATION_SETTINGS), REQUEST_CODE_OPEN_SETTINGS);
+			}
+			if (status == ClickCallback.Status.NEGATIVE) {
+				PluginResult.Status resultStatus = PluginResult.Status.OK;
+				String permissionStatus = mInstance.DENIED_THROUGH_LAST_RESORT_DIALOG;
 				Log.v(TAG, permissionStatus);
 				mCallbackContext.sendPluginResult(new PluginResult(resultStatus, permissionStatus));
 			}
@@ -103,7 +131,7 @@ public class NotificationsPermission extends CordovaPlugin {
 	@Override
 	public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
 		super.onRequestPermissionResult(requestCode,permissions,grantResults);
-		if (requestCode == REQUEST_CODE) {
+		if (requestCode == REQUEST_CODE_PERMISSION) {
 			String result = "undefined";
 			if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
 				if(hasPassedRationale == true){
@@ -115,8 +143,8 @@ public class NotificationsPermission extends CordovaPlugin {
 				mUtils.savePermissionHasBeenGrantedBefore();
 			}
 			else if(grantResults[0] == PackageManager.PERMISSION_DENIED){
-				/* We need to check whether we have been in the process or the user has just started
-				 * if the rationale dialog has been needed before we know this is not the first start
+				/* We need to check whether we have been in the process or the user has just started.
+				 * If the rationale dialog has been needed before we know this is not the first start
 				 */
 				boolean rationaleHasBeenNeededBefore = mUtils.getRationaleHasBeenNeededBefore();
 				/* In the rare case that the user granted permission and then ungranted it via OS settings
@@ -140,10 +168,13 @@ public class NotificationsPermission extends CordovaPlugin {
 				if(beforeClickPermissionRat == false && afterClickPermissionRat == false){
 					/* We have had the first dialog a while ago, so this is the end */
 					if(rationaleHasBeenNeededBefore == true || permissionHasBeenGrantedBefore == true){
+						if(!mUtils.getLastResortHasShown()) {
+							showExtraDialog(true);
+							mUtils.saveLastResortHasShown();
+						}
 						result = ALREADY_DENIED_PERMANENTLY;
 					}
 					else if(haveWeBeenHereBefore == true){
-						Log.v(TAG,"blubberdeblubber");
 						result = ALREADY_DENIED_NOT_PERMANENTLY;
 					}
 					else{
@@ -207,13 +238,22 @@ public class NotificationsPermission extends CordovaPlugin {
 					String rationaleMsg = args.getString(2);
 					String positiveButton = args.getString(3);
 					String negativeButton = args.getString(4);
-					int theme = Integer.parseInt(args.getString(5));
-					showRequestPermissionRationale(
-							rationaleTitle, rationaleMsg, positiveButton, negativeButton, theme, REQUEST_CODE);
+					int rationaleTheme = Integer.parseInt(args.getString(5));
+					setExtraDialog(weWantRationale, rationaleTitle, rationaleMsg, positiveButton, negativeButton, rationaleTheme);
+					showExtraDialog(false);
 				} else {
+					// Set the potential last resort dialog
+					String showLastResort = args.getString(6);
+					boolean weWantLastResort = showLastResort.equals("true") ? true : false;
+					String lastResortTitle = args.getString(7);
+					String lastResortMsg = args.getString(8);
+					String positiveButton = args.getString(9);
+					String negativeButton = args.getString(10);
+					int lastResortTheme = Integer.parseInt(args.getString(5));
+					setExtraDialog(weWantLastResort, lastResortTitle, lastResortMsg, positiveButton, negativeButton, lastResortTheme);
 					// Save the status now in order to determine at return whether request is permanently denied.
 					beforeClickPermissionRat = shouldShowRationale();
-					cordova.requestPermission(mInstance, REQUEST_CODE, PERMISSION);
+					cordova.requestPermission(mInstance, REQUEST_CODE_PERMISSION, PERMISSION);
 				}
 
 			} catch (JSONException e) {
@@ -238,19 +278,42 @@ public class NotificationsPermission extends CordovaPlugin {
 	/**
 	 * Show the permission rationale dialog.
 	 *
-	 * @param rationaleMsg   The message to be displayed in the dialog.
+	 * @param title 		 Title of the dialog
+	 * @param msg   		The message to be displayed in the dialog.
 	 * @param positiveButton The text for the positive button.
 	 * @param negativeButton The text for the negative button.
 	 * @param theme           The theme resource ID for the dialog.
-	 * @param requestCode     The request code associated with the permission request.
 	 */
-	public void showRequestPermissionRationale(
-			@NonNull String title,
-			@NonNull String msg,
-			@NonNull String positiveButton,
-			@NonNull String negativeButton,
-			@StyleRes int theme,
-			int requestCode) {
+	private void setExtraDialog(@NonNull boolean showDialog,
+								@NonNull String title,
+								@NonNull String msg,
+								@NonNull String positiveButton,
+								@NonNull String negativeButton,
+								@StyleRes int theme){
+		mShowDialog = showDialog;
+		mTitle = title;
+		mMsg = msg;
+		mPositiveButton = positiveButton;
+		mNegativeButton = negativeButton;
+		mTheme = theme;
+
+	}
+	/**
+	 * @param doSettings     Whether we show a button to settings as OK button
+	 */
+	public void showExtraDialog(
+			@NonNull boolean doSettings
+			) {
+		if(mShowDialog == false){
+			return;
+		}
+		ClickCallback dialogClickCallback;
+		if(doSettings == true){
+			dialogClickCallback = mCLickCallbackLastResort;
+		}
+		else{
+			dialogClickCallback = mClickCallbackRationale;
+		}
 		AppCompatActivity activity = cordova.getActivity();
 		// DialogFragment.show() will take care of adding the fragment
 		// in a transaction. We also want to remove any currently showing
@@ -261,11 +324,28 @@ public class NotificationsPermission extends CordovaPlugin {
 			ft.remove(prev);
 		}
 		ft.addToBackStack(null);
-
 		// Create and show the dialog.
-		DialogFragment newFragment = PermissionsRationaleDialogFragment.newInstance(
-				title, msg, positiveButton, negativeButton, mClickCallback, theme, requestCode);
+		DialogFragment newFragment = PermissionsDialogFragment.newInstance(
+				mTitle, mMsg, mPositiveButton, mNegativeButton, mTheme, dialogClickCallback);
 		newFragment.show(ft, DIALOG_ID);
 	}
+	@Override
+	public void onResume(boolean multitasking){
+		if(mUserWentToSettings == true){
+			String result = "";
+			if (cordova.hasPermission(PERMISSION)) {
+				// We got permission, return NEWLY_GRANTED_AFTER_LAST_RESORT
+				result = NEWLY_GRANTED_AFTER_SETTINGS;
 
+			}
+			else{
+				result = ALREADY_DENIED_PERMANENTLY_AFTER_SETTINGS;
+			}
+			Log.v(TAG, result);
+			PluginResult.Status status = PluginResult.Status.OK;
+			mCallbackContext.sendPluginResult(new PluginResult(status, result));
+			mUserWentToSettings = false;
+		}
+
+	}
 }

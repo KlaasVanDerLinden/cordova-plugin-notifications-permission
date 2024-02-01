@@ -30,7 +30,7 @@
 		</config-file>
         <source-file src="src/android/NotificationsPermission.java" target-dir="src/nl/klaasmaakt/cordova/notifications_permission" />
         <source-file src="src/android/ClickCallback.java" target-dir="src/nl/klaasmaakt/cordova/notifications_permission" />
-        <source-file src="src/android/PermissionsRationaleDialogFragment.java" target-dir="src/nl/klaasmaakt/cordova/notifications_permission" />
+        <source-file src="src/android/PermissionsDialogFragment.java" target-dir="src/nl/klaasmaakt/cordova/notifications_permission" />
         <source-file src="src/android/Utils.java" target-dir="src/nl/klaasmaakt/cordova/notifications_permission" />
     </platform>
 </plugin>

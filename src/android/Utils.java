@@ -12,8 +12,15 @@ public class Utils {
     private static final String SP_RATIONALE_HAS_BEEN_NEEDED_BEFORE_KEY = "rationale_has_been_needed_before";
     private static final String SP_WE_HAVE_BEEN_HERE_BEFORE_KEY = "we_have_been_here_before";
     private static final String SP_PERMISSION_HAS_BEEN_GRANTED_BEFORE_KEY = "permission_has_been_granted_before";
+    private static final String SP_LAST_RESORT_HAS_SHOWN_KEY = "permission_has_been_granted_before";
     public Utils(Context context){
         mContext = context;
+    }
+    public void saveLastResortHasShown(){
+        setSavedPref(SP_LAST_RESORT_HAS_SHOWN_KEY);
+    }
+    public boolean getLastResortHasShown(){
+        return getSavedPref(SP_LAST_RESORT_HAS_SHOWN_KEY);
     }
     public void saveRationaleHasBeenNeededBefore(){
         setSavedPref(SP_RATIONALE_HAS_BEEN_NEEDED_BEFORE_KEY);
