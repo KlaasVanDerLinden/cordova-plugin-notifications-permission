@@ -44,15 +44,15 @@ public class NotificationsPermission extends CordovaPlugin {
 	// The permission we need
 	private static final String PERMISSION = Manifest.permission.POST_NOTIFICATIONS;
 	// Constants for permission status
-	public static final String NEWLY_GRANTED_AFTER_RATIONALE = "newly_granted_after_rationale";
-	public static final String NEWLY_GRANTED_WITHOUT_RATIONALE = "newly_granted_without_rationale";
-	public static final String NEWLY_GRANTED_AFTER_SETTINGS = "newly_granted_after_settings";
-	public static final String ALREADY_GRANTED = "already_granted";
-	public static final String ALREADY_DENIED_PERMANENTLY = "already_denied_permanently";
-	public static final String NEWLY_DENIED_PERMANENTLY = "newly_denied_permanently";
-	public static final String ALREADY_DENIED_NOT_PERMANENTLY = "already_denied_not_permanently";
-	public static final String NEWLY_DENIED_NOT_PERMANENTLY = "newly_denied_not_permanently";
-	public static final String ALREADY_DENIED_PERMANENTLY_AFTER_SETTINGS = "already_denied_permanently_after_settings";
+	public static final String GRANTED_NEWLY_AFTER_RATIONALE = "granted_newly_after_rationale";
+	public static final String GRANTED_NEWLY_WITHOUT_RATIONALE = "granted_newly_without_rationale";
+	public static final String GRANTED_NEWLY_AFTER_SETTINGS = "granted_newly_after_settings";
+	public static final String GRANTED_ALREADY = "granted_already";
+	public static final String DENIED_PERMANENTLY_ALREADY = "denied_permanently_already";
+	public static final String DENIED_PERMANENTLY_NEWLY = "denied_permanently_newly";
+	public static final String DENIED_NOT_PERMANENTLY_ALREADY = "denied_not_permanently_already";
+	public static final String DENIED_NOT_PERMANENTLY_NEWLY = "denied_not_permanently_newly";
+	public static final String DENIED_PERMANENTLY_ALREADY_AFTER_SETTINGS = "denied_permanently_already_after_settings";
 	public static final String DENIED_THROUGH_RATIONALE_DIALOG = "denied_through_rationale_dialog";
 	public static final String DENIED_THROUGH_LAST_RESORT_DIALOG = "denied_through_last_resort_dialog";
 	public static final String NOT_NEEDED = "not_needed";
@@ -130,15 +130,16 @@ public class NotificationsPermission extends CordovaPlugin {
 	 */
 	@Override
 	public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
+		/* onRequestPermissionResult is deprecated, but the alternative onRequestPermissionsResult is not implemented yet/ */
 		super.onRequestPermissionResult(requestCode,permissions,grantResults);
 		if (requestCode == REQUEST_CODE_PERMISSION) {
 			String result = "undefined";
 			if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
 				if(hasPassedRationale == true){
-					result = NEWLY_GRANTED_AFTER_RATIONALE;
+					result = GRANTED_NEWLY_AFTER_RATIONALE;
 				}
 				else {
-					result = NEWLY_GRANTED_WITHOUT_RATIONALE;
+					result = GRANTED_NEWLY_WITHOUT_RATIONALE;
 				}
 				mUtils.savePermissionHasBeenGrantedBefore();
 			}
@@ -172,28 +173,28 @@ public class NotificationsPermission extends CordovaPlugin {
 							showExtraDialog(true);
 							mUtils.saveLastResortHasShown();
 						}
-						result = ALREADY_DENIED_PERMANENTLY;
+						result = DENIED_PERMANENTLY_ALREADY;
 					}
 					else if(haveWeBeenHereBefore == true){
-						result = ALREADY_DENIED_NOT_PERMANENTLY;
+						result = DENIED_NOT_PERMANENTLY_ALREADY;
 					}
 					else{
-						result = NEWLY_DENIED_NOT_PERMANENTLY;
+						result = DENIED_NOT_PERMANENTLY_NEWLY;
 					}
 				}
 				else if(beforeClickPermissionRat == false && afterClickPermissionRat == true){
 					if(haveWeBeenHereBefore == true) {
-						result = ALREADY_DENIED_NOT_PERMANENTLY;
+						result = DENIED_NOT_PERMANENTLY_ALREADY;
 					}
 					else{
-						result = NEWLY_DENIED_NOT_PERMANENTLY;
+						result = DENIED_NOT_PERMANENTLY_NEWLY;
 					}
 				}
 				else if(beforeClickPermissionRat == true && afterClickPermissionRat == false){
-					result = NEWLY_DENIED_PERMANENTLY;
+					result = DENIED_PERMANENTLY_NEWLY;
 				}
 				else if(beforeClickPermissionRat == true && afterClickPermissionRat == true){
-					result = ALREADY_DENIED_NOT_PERMANENTLY;
+					result = DENIED_NOT_PERMANENTLY_ALREADY;
 				}
 			}
 			Log.v(TAG, result);
@@ -227,7 +228,7 @@ public class NotificationsPermission extends CordovaPlugin {
 
 				if (cordova.hasPermission(PERMISSION)) {
 					// Already have permission, return ALREADY_GRANTED
-					String result = ALREADY_GRANTED;
+					String result = GRANTED_ALREADY;
 					Log.v(TAG, result);
 					PluginResult.Status status = PluginResult.Status.OK;
 					callbackContext.sendPluginResult(new PluginResult(status, result));
@@ -335,11 +336,11 @@ public class NotificationsPermission extends CordovaPlugin {
 			String result = "";
 			if (cordova.hasPermission(PERMISSION)) {
 				// We got permission, return NEWLY_GRANTED_AFTER_LAST_RESORT
-				result = NEWLY_GRANTED_AFTER_SETTINGS;
+				result = GRANTED_NEWLY_AFTER_SETTINGS;
 
 			}
 			else{
-				result = ALREADY_DENIED_PERMANENTLY_AFTER_SETTINGS;
+				result = DENIED_PERMANENTLY_ALREADY_AFTER_SETTINGS;
 			}
 			Log.v(TAG, result);
 			PluginResult.Status status = PluginResult.Status.OK;

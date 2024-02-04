@@ -46,7 +46,7 @@ This plugin defines the global `window.cordova.notifications_permission` and its
 		* "Don't Allow": You are not allowed to show notifications. No further dialog for the user.
 	* "Not now": continue to 2.
 <figure>
-	<img src="https://github.com/KlaasVanDerLinden/cordova-plugin-notifications-permission/blob/master/Flowchart.svg?raw=true"/>
+	<img src="https://github.com/KlaasVanDerLinden/cordova-plugin-notifications-permission/blob/master/flowchart.svg?raw=true"/>
 	<caption>A flowchart explaining the process and the different values for the status. The status ALREADY_DENIED_NOT_PERMANENTLY misses from this flow chart. It will happen when the user swipes away the System Dialog during the 2nd run. When the app user has already granted permission and afterwards revokes in Android system settings, the process starts over at the second run. (There is no way to distinguish this.)</caption>
 </figure>
 
@@ -84,17 +84,17 @@ permissionPlugin.maybeAskPermission(
     function(status){
         /**
          * status can be one of the following:
-         * - permissionPlugin.NEWLY_GRANTED_WITHOUT_RATIONALE ("Allow" has been clicked on the System Dialog)
-         * - permissionPlugin.NEWLY_GRANTED_AFTER_RATIONALE ("Allow" has been clicked on the System Dialog after have confirmed the rationale dialog.)
-         * - permissionPlugin.NEWLY_GRANTED_AFTER_SETTINGS (User was guided to system settings and switch on notifications.)
-         * - permissionPlugin.ALREADY_GRANTED (User has already allowed the notification at some point earlier.)
-         * - permissionPlugin.NEWLY_DENIED_NOT_PERMANENTLY  ("Don't allow" clicked or swiped away for the first time. OS will try again in the future.)
-         * - permissionPlugin.NEWLY_DENIED_PERMANENTLY  ("Don't allow" clicked. OS will never ask again.)
-         * - permissionPlugin.ALREADY_DENIED_PERMANENTLY  (OS decided to stop asking at some point earlier.)
-         * - permissionPlugin.ALREADY_DENIED_NOT_PERMANENTLY  (User denied again. But the OS will try again in the future.)
+         * - permissionPlugin.GRANTED_NEWLY_WITHOUT_RATIONALE ("Allow" has been clicked on the System Dialog)
+         * - permissionPlugin.GRANTED_NEWLY_AFTER_RATIONALE ("Allow" has been clicked on the System Dialog after have confirmed the rationale dialog.)
+         * - permissionPlugin.GRANTED_NEWLY_AFTER_SETTINGS (User was guided to system settings and switch on notifications.)
+         * - permissionPlugin.GRANTED_ALREADY (User has already allowed the notification at some point earlier.)
+         * - permissionPlugin.DENIED_NOT_PERMANENTLY_NEWLY  ("Don't allow" clicked or swiped away for the first time. OS will try again in the future.)
+         * - permissionPlugin.DENIED_PERMANENTLY_NEWLY ("Don't allow" clicked. OS will never ask again.)
+         * - permissionPlugin.DENIED_PERMANENTLY_ALREADY  (OS decided to stop asking at some point earlier.)
+         * - permissionPlugin.DENIED_NOT_PERMANENTLY_ALREADY  (User denied again. But the OS will try again in the future.)
+         * - permissionPlugin.ALREADY_DENIED_PERMANENTLY_AFTER_SETTINGS (User was guided to system settings but chose not to allow.)
          * - permissionPlugin.DENIED_THROUGH_RATIONALE_DIALOG (User clicked on the rationale dialog's Cancel button.)
          * - permissionPlugin.DENIED_THROUGH_LAST_RESORT_DIALOG (User clicked "cancel" instead of going to settings.)
-         * - permissionPlugin.ALREADY_DENIED_PERMANENTLY_AFTER_SETTINGS (User was guided to system settings but chose not to allow.)
          * - permissionPlugin.NOT_NEEDED (User is on device before Android 13 (API Level 33).)
          * - permissionPlugin.NOT_ANDROID (User is not on an Android device.)
          * - permissionPlugin.ERROR (A message was printed in the console indicating the cause of the error.)
@@ -189,20 +189,20 @@ permissionPlugin.maybeAskPermission(
     function(status) {
         /* Permission is either granted, denied, or not needed. */
         switch(status){
-            case permissionPlugin.NEWLY_GRANTED_WITHOUT_RATIONALE:
-            case permissionPlugin.NEWLY_GRANTED_AFTER_RATIONALE:
-            case permissionPlugin NEWLY_GRANTED_AFTER_SETTINGS:
-            case permissionPlugin.ALREADY_GRANTED:
+            case permissionPlugin.GRANTED_NEWLY_WITHOUT_RATIONALE:
+            case permissionPlugin.GRANTED_NEWLY_AFTER_RATIONALE:
+            case permissionPlugin GRANTED_NEWLY_AFTER_SETTINGS:
+            case permissionPlugin.GRANTED_ALREADY:
             case permissionPlugin.NOT_NEEDED:
                 /* Notification shows the same as it did before Android 13 (API Level 33). */
                 break;
-            case permissionPlugin.NEWLY_DENIED_NOT_PERMANENTLY:
-            case permissionPlugin.NEWLY_DENIED_PERMANENTLY:
-            case permissionPlugin.ALREADY_DENIED_NOT_PERMANENTLY:
-            case permissionPlugin.ALREADY_DENIED_PERMANENTLY:
+            case permissionPlugin.DENIED_NOT_PERMANENTLY_NEWLY:
+            case permissionPlugin.DENIED_PERMANENTLY_NEWLY:
+            case permissionPlugin.DENIED_NOT_PERMANENTLY_ALREADY:
+            case permissionPlugin.DENIED_PERMANENTLY_ALREADY:
+            case permissionPlugin.DENIED_PERMANENTLY_ALREADY_AFTER_SETTINGS
             case permissionPlugin.DENIED_THROUGH_RATIONALE_DIALOG:
             case permissionPlugin.DENIED_THROUGH_LAST_RESORT_DIALOG:
-            case permissionPlugin.ALREADY_DENIED_PERMANENTLY_AFTER_SETTINGS
             case permissionPlugin.NOT_ANDROID:
                 /* The notification does not show. */
                 break;    

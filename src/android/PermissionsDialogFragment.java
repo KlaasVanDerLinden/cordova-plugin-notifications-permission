@@ -25,15 +25,15 @@ public class PermissionsDialogFragment extends DialogFragment {
     private static ClickCallback mClickCallback;
 
     /**
-     * Create a new instance of PermissionsRationaleDialogFragment with the given arguments.
+     * Create a new instance of PermissionsDialogFragment with the given arguments.
      *
-     * @param rationaleMsg   The message to be displayed in the dialog.
+     * @param title   The title to be displayed in the dialog.
+     * @param msg   The message to be displayed in the dialog.
      * @param positiveButton The text for the positive button.
      * @param negativeButton The text for the negative button.
      * @param clickCallback  The callback to handle button clicks.
      * @param theme           The theme resource ID for the dialog.
-     * @param requestCode     The request code associated with the permission request.
-     * @return A new instance of PermissionsRationaleDialogFragment.
+     * @return A new instance of PermissionsDialogFragment.
      */
     static PermissionsDialogFragment newInstance(
             String title,
