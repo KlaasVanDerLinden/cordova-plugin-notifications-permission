@@ -31,7 +31,7 @@ Before Android 13 (API Level 33) apps running a Foreground service did not have 
 * These apps are required to have a notification (passed to the foreground service), so the user can see that the app is doing something in the foreground, while the app itself is in the background.
 * To show the necessary notification, since Android 13 (API Level 33), an app using a foreground service notification has to ask runtime permission.
 
-This plugin adds a system dialog ("Allow", "Deny") and a "Rationale" dialog in case the user doesn't allow notifications in order to explain why the permission is needed. It also adds a "Last Resort" dialog: when the user has denied permission permanently, you can show a dialog explaning to the app user how to enable notifications from system settings. Both the Rationale Dialog and the Last resort Dialog can be skipped by setting their `show` properties to `false`.
+This plugin adds a system dialog ("Allow", "Deny") and a "Rationale" dialog in case the user doesn't allow notifications in order to explain why the permission is needed. It also adds a "Last Resort" dialog: when the user has denied permission permanently, you can show a dialog explaining to the app user how to enable notifications from system settings. Both the Rationale Dialog and the Last resort Dialog can be skipped by setting their `show` properties to `false`.
 
 This plugin defines the global `window.cordova.notifications_permission` and its method `maybeAskPermission` that does all the heavy lifting to get the permission handled.
 
