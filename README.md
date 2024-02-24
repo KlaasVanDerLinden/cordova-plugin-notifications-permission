@@ -35,8 +35,6 @@ This plugin adds a system dialog ("Allow", "Deny") and a "Rationale" dialog in c
 
 This plugin defines the global `window.cordova.notifications_permission` and its method `maybeAskPermission` that does all the heavy lifting to get the permission handled.
 
-
-
 1. First call to `maybeAskPermission`: Shows System dialog. User chooses:
 	* "Allow": You are allowed to show notifications. No further dialog for the user.
 	* "Don't Allow": continue to 2.
@@ -191,7 +189,7 @@ permissionPlugin.maybeAskPermission(
         switch(status){
             case permissionPlugin.GRANTED_NEWLY_WITHOUT_RATIONALE:
             case permissionPlugin.GRANTED_NEWLY_AFTER_RATIONALE:
-            case permissionPlugin GRANTED_NEWLY_AFTER_SETTINGS:
+            case permissionPlugin.GRANTED_NEWLY_AFTER_SETTINGS:
             case permissionPlugin.GRANTED_ALREADY:
             case permissionPlugin.NOT_NEEDED:
                 /* Notification shows the same as it did before Android 13 (API Level 33). */
