@@ -39,7 +39,7 @@ This plugin defines the global `window.cordova.notifications_permission` and its
 	* "Allow": You are allowed to show notifications. No further dialog for the user.
 	* "Don't Allow": continue to 2.
 2. Second call (and any further calls) to `maybeAskPermission`: Shows Rationale dialog explaining why permission is needed. User chooses:
-	* "OK": System dialog is shown again - a the last time. User chooses:
+	* "OK": System dialog is shown again - the last time. User chooses:
 		* "Allow": You are allowed to show notifications. No further dialog for the user.
 		* "Don't Allow": You are not allowed to show notifications. No further dialog for the user.
 	* "Not now": continue to 2.
