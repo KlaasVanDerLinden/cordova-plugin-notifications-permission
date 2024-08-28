@@ -77,7 +77,7 @@ let NotificationsPermission = {
 		}
 		else{
 			/* return window.cordova.notifications_permission.NOT_ANDROID */
-			onSuccess(this.NOT_ANDROID);
+			onResult(this.NOT_ANDROID);
 		}
 	},
 	/* Private functions to do typechecks and set defaults. */
