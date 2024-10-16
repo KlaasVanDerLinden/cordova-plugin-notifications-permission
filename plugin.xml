@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 		xmlns:android="http://schemas.android.com/apk/res/android"
-        id="cordova-plugin-notifications-permission" version="0.0.2">
+        id="cordova-plugin-notifications-permission" version="0.0.32">
     <name>Notification Permission</name>
     <description>Plugin that askes permission for notifications on Android.</description>
     <author>Klaas van der Linden</author>

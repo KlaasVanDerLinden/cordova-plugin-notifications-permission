@@ -134,7 +134,10 @@ public class NotificationsPermission extends CordovaPlugin {
 		super.onRequestPermissionResult(requestCode,permissions,grantResults);
 		if (requestCode == REQUEST_CODE_PERMISSION) {
 			String result = "undefined";
-			if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+			if(grantResults.length == 0){
+				result = "the result of the granted status is unknown";
+			}
+			else if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
 				if(hasPassedRationale == true){
 					result = GRANTED_NEWLY_AFTER_RATIONALE;
 				}
